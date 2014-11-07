@@ -1,3 +1,5 @@
+var r;
+
 $(document).ready(function() {
 	findMostEffectiveSpell();
 });
@@ -9,8 +11,8 @@ var findMostEffectiveSpell = function() {
 		+ API_key;
 
 	$.get(request_URL, function(response) {
-		doStuff(response);
-		
+		r = response.data;
+		doStuff(response.data);
 	}).fail(function(jqxhr) {
 	    var response = $.parseJSON(jqxhr.responseText);
 	    alert("API query failed. Perhaps an incorrect API Key?");
@@ -18,6 +20,6 @@ var findMostEffectiveSpell = function() {
 
 };
 
-var doStuff = function(results) {
-	$("#content").html(JSON.stringify(results, null, 4));
+var doStuff = function(data) {
+	$("#content").html(JSON.stringify(data, null, 4));
 };
