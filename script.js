@@ -12,7 +12,7 @@ var findMostEffectiveSpell = function() {
 
 	$.get(request_URL, function(response) {
 		r = response.data;
-		doStuff(response.data);
+		testScaleStyles(response.data);
 	}).fail(function(jqxhr) {
 	    var response = $.parseJSON(jqxhr.responseText);
 	    alert("API query failed. Perhaps an incorrect API Key?");
@@ -21,5 +21,68 @@ var findMostEffectiveSpell = function() {
 };
 
 var doStuff = function(data) {
+	var abilitypower = 200;
+	var attackdamage = 200;
+	var cooldownreduction = 15; // In percent, max 40%
+
+	var spellDamage_byChampion = [];
+
 	$("#content").html(JSON.stringify(data, null, 4));
+	for(var champ in data) {
+		var champData = data.champ;
+
+		var champSpellDamage = {};
+		champSpellDamage.champion = champData.name;
+		champSpellDamage.AP = abilitypower;
+		champSpellDamage.AD = attackdamage;
+		champSpellDamage.CDR = cooldownreduction;
+
+		var Q = champData.spells[0];
+		// Q_dmg = Q.effect[1][Q.maxrank-1] + 
+		//For now, only scale with ad/ap/cdr, nothing else.
+
+
+
+
+		spellDamage_byChampion.append(champSpellDamage);
+
+	}
 };
+
+var testScaleStyles = function(data) {
+	// $("#content").html(JSON.stringify(data, null, 4));
+	results = {};
+
+	for(var champ in data) {
+		// console.log(champ);
+		var champSpells = data[champ]["spells"];
+		// console.log(champSpells);
+		// console.log(champSpells);
+
+		var scalings = [];
+
+		for(var s = 0; s < champSpells.length; s++) {
+			var spell = champSpells[s];
+			// console.log(spell);
+
+
+			var vars = spell.vars;
+
+			if(vars) {
+
+				for(var v = 0; v < vars.length; v++) {
+					var q = vars[v]["link"];
+					if(["bonusattackdamage","spelldamage","attackdamage","bonushealth","armor"].indexOf(q) < 0) {
+						scalings[scalings.length] = q;
+					}
+				}
+
+				results[champ] = scalings;
+			}
+		}
+
+
+	}
+
+	$("#content").html(JSON.stringify(results, null, 4));
+}

@@ -1,0 +1,11 @@
+Karma: Complicated matters with Mantra... ignore for now.
+
+[["Ezreal",134,222,508,1034],
+
+effective damage / second
+
+
+
+at level 1 (and rank 1 ability)
+at level 18 (and max rank ability)
+
