@@ -9,3 +9,5 @@ effective damage / second
 at level 1 (and rank 1 ability)
 at level 18 (and max rank ability)
 
+full proc
+min proc

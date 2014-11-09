@@ -12,7 +12,7 @@ var findMostEffectiveSpell = function() {
 
 	$.get(request_URL, function(response) {
 		r = response.data;
-		testScaleStyles(response.data);
+		showSanitizedTooltips(response.data);
 	}).fail(function(jqxhr) {
 	    var response = $.parseJSON(jqxhr.responseText);
 	    alert("API query failed. Perhaps an incorrect API Key?");
@@ -49,7 +49,7 @@ var doStuff = function(data) {
 	}
 };
 
-var testScaleStyles = function(data) {
+var showScaleFactors = function(data) {
 	// $("#content").html(JSON.stringify(data, null, 4));
 	results = {};
 
@@ -85,4 +85,42 @@ var testScaleStyles = function(data) {
 	}
 
 	$("#content").html(JSON.stringify(results, null, 4));
+}
+
+var showSanitizedTooltips = function(data) {
+	results = {};
+
+	var results = "<ul>";
+	for(var champ in data) {
+		// console.log(champ);
+		var champSpells = data[champ]["spells"];
+		// console.log(champSpells);
+		// console.log(champSpells);
+
+		
+
+		for(var s = 0; s < champSpells.length; s++) {
+			var spell = champSpells[s];
+			// console.log(spell);
+
+
+			var sanitizedTooltip = spell.sanitizedTooltip;
+
+			// results[champ + "" + s] = sanitizedTooltip;
+			results += "<li>" + sanitizedTooltip + "</li>";
+			
+		}
+
+	results += "</li>";
+
+
+	}
+
+	$("#content").html(results);
+
+}
+
+//Only looks at scaling coefficients
+var naiveFindMostEfficient = function(data) {
+
 }
