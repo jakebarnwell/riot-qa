@@ -11,3 +11,6 @@ at level 18 (and max rank ability)
 
 full proc
 min proc
+
+
+Look at level up tags to easily find damage?

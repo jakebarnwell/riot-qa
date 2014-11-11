@@ -12,7 +12,7 @@ var findMostEffectiveSpell = function() {
 
 	$.get(request_URL, function(response) {
 		r = response.data;
-		showSanitizedTooltips(response.data);
+		showLevelUpScalings(response.data);
 	}).fail(function(jqxhr) {
 	    var response = $.parseJSON(jqxhr.responseText);
 	    alert("API query failed. Perhaps an incorrect API Key?");
@@ -118,6 +118,64 @@ var showSanitizedTooltips = function(data) {
 
 	$("#content").html(results);
 
+}
+
+var showLevelUpScalings = function(data) {
+	results = {};
+
+	var results = "<ul>";
+	for(var champ in data) {
+		// console.log(champ);
+		var champSpells = data[champ]["spells"];
+		// console.log(champSpells);
+		// console.log(champSpells);
+
+		
+
+		for(var s = 0; s < champSpells.length; s++) {
+			var spell = champSpells[s];
+			// console.log(spell);
+
+
+			var label = spell.leveltip.label;
+
+			var spellLetter = "R";
+			if(s === 0) {
+				spellLetter = "Q";
+			} else if(s === 1) {
+				spellLetter = "W";
+			} else if(s === 2) {
+				spellLetter = "E";
+			}
+
+			//if the spell mentions damage in its sanitized description...
+			if(spell.sanitizedTooltip.toLowerCase().indexOf("damage") >= 0) {
+
+				//if the spell does not have 'damamge' in its level scalings labels...
+				if(damageNotInScalings(spell.leveltip.label)) {
+					results += "<li>" + champ + " " + spellLetter + ": " + label + "</li>";
+				}
+			}
+
+			
+		}
+
+	results += "</li>";
+
+
+	}
+
+	$("#content").html(results);
+}
+
+var damageNotInScalings = function(labels) {
+	var hasDamage = false;
+	for(var i = 0; i < labels.length; i++) {
+		if(labels[i].toLowerCase().indexOf("damage") >= 0) {
+			hasDamage = true;
+		}
+	}
+	return !hasDamage;
 }
 
 //Only looks at scaling coefficients
