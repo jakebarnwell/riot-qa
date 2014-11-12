@@ -352,15 +352,8 @@ var removeBadPercents = function(champ, spellNumber, matches) {
 }
 
 var notFalsePositive = function(champName, spellNumber) {
-	var spellName = getSpellLetter(spellNumber);
-	var spell = champName + spellName;
+	var spell = champName + getSpellLetter(spellNumber);
 
-	var falsePositives =
-		["PoppyW","PoppyR","RyzeR","AnnieE","KarmaR","HeimerdingerR","AlistarR","VayneW","VarusW",
-		"Udyr","RivenE","GalioW","ViW","IreliaW","AatroxW","NunuQ","Twisted FateE","QuinnW",
-		"SivirW","TeemoE","ZileanR","JinxQ","YorickR","BlitzcrankE","BraumE","TwitchQ",
-		"TwitchE","TwitchR","Master YiE","ZyraW","ZedR","Kog'MawW","RengarR","WarwickQ","JayceW2","JayceR2",
-		"EliseR","EliseR2","ShacoQ","KayleE","JaxR","NasusQ","DravenQ","Cho'GathE","Miss FortuneW"];
 	if(falsePositives.indexOf(spell) >= 0 || falsePositives.indexOf(champName) >= 0) {
 		return false;
 	}
@@ -368,67 +361,10 @@ var notFalsePositive = function(champName, spellNumber) {
 }
 
 var trueNegative = function(champName, spellNumber) {
-	var spellName = getSpellLetter(spellNumber);
+	var spell = champName + getSpellLetter(spellNumber);
 
-	var spell = champName + spellName;
-
-	var trueNegatives =
-		["AzirE","MalzaharW","NunuR","AkaliE","LucianQ","EzrealW"];
 	if(trueNegatives.indexOf(spell) >= 0) {
 		return true;
 	}
 	return false;
-}
-
-//Only looks at scaling coefficients
-var naiveFindMostEfficient = function(data) {
-
-}
-
-//Uses labels to find most efficient
-var findMostEfficient_withLabels = function(data) {
-	results = {};
-
-	var results = "<ul>";
-	for(var champ in data) {
-		var champSpells = data[champ]["spells"];
-
-		for(var s = 0; s < champSpells.length; s++) {
-			var spell = champSpells[s];
-			var label = spell.leveltip.label;
-
-
-			
-		}
-
-	results += "</li>";
-
-
-	}
-
-	$("#content").html(results);
-}
-
-//Uses sanitzedTooltip to find most efficient
-var findMostEfficient_withTooltip = function(data) {
-	results = {};
-
-	var results = "<ul>";
-	for(var champ in data) {
-		var champSpells = data[champ]["spells"];
-
-		for(var s = 0; s < champSpells.length; s++) {
-			var spell = champSpells[s];
-			var label = spell.leveltip.label;
-
-
-			
-		}
-
-	results += "</li>";
-
-
-	}
-
-	$("#content").html(results);
 }

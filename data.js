@@ -404,3 +404,17 @@ var damageMod = {
 		}
 	}
 };
+
+/* Spells that the heuristic thinks are damaging spells but they aren't. (Actually, most
+of them are, it's just that they're not appropriate to find the most "efficient" spells
+with, e.g. auto-attack-enhancing spells). */
+var falsePositives =
+	["PoppyW","PoppyR","RyzeR","AnnieE","KarmaR","HeimerdingerR","AlistarR","VayneW","VarusW",
+	"Udyr","RivenE","GalioW","ViW","IreliaW","AatroxW","NunuQ","Twisted FateE","QuinnW",
+	"SivirW","TeemoE","ZileanR","JinxQ","YorickR","BlitzcrankE","BraumE","TwitchQ",
+	"TwitchE","TwitchR","Master YiE","ZyraW","ZedR","Kog'MawW","RengarR","WarwickQ","JayceW2","JayceR2",
+	"EliseR","EliseR2","ShacoQ","KayleE","JaxR","NasusQ","DravenQ","Cho'GathE","Miss FortuneW"];
+
+/* Spells that the heuristic thinks are not damaging spells when they in fact are. */
+var trueNegatives =
+	["AzirE","MalzaharW","NunuR","AkaliE","LucianQ","EzrealW"];
