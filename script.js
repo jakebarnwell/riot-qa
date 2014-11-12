@@ -12,7 +12,7 @@ var findMostEffectiveSpell = function() {
 
 	$.get(request_URL, function(response) {
 		r = response.data;
-		showLevelUpScalings(response.data);
+		showTooltipsNotHavingDamageKeywordsBeforeDamage(response.data);
 	}).fail(function(jqxhr) {
 	    var response = $.parseJSON(jqxhr.responseText);
 	    alert("API query failed. Perhaps an incorrect API Key?");
@@ -152,7 +152,8 @@ var showLevelUpScalings = function(data) {
 			if(spell.sanitizedTooltip.toLowerCase().indexOf("damage") >= 0) {
 
 				//if the spell does not have 'damamge' in its level scalings labels...
-				if(damageNotInScalings(spell.leveltip.label)) {
+				// if(damageNotInScalings(spell.leveltip.label)) {
+				if(true) {
 					results += "<li>" + champ + " " + spellLetter + ": " + label + "</li>";
 				}
 			}
@@ -178,7 +179,167 @@ var damageNotInScalings = function(labels) {
 	return !hasDamage;
 }
 
+var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
+	results = {};
+
+	var results = "<ol>";
+	for(var champ in data) {
+		// console.log(champ);
+		var champSpells = data[champ]["spells"];
+		// console.log(champSpells);
+		// console.log(champSpells);
+
+		
+
+		for(var s = 0; s < champSpells.length; s++) {
+			var spell = champSpells[s];
+			// console.log(spell);
+
+
+			var tooltip = spell.sanitizedTooltip;
+
+			var keywords = ["take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer","suffers","suffering"];
+			var keywords_withSquiggle = [];
+			for(var k in keywords) {
+				keywords_withSquiggle[k] = keywords[k] + " {{";
+			}
+			
+
+			var spellLetter = "R";
+			if(s === 0) {
+				spellLetter = "Q";
+			} else if(s === 1) {
+				spellLetter = "W";
+			} else if(s === 2) {
+				spellLetter = "E";
+			}
+
+			//if the spell mentions damage in its sanitized description...
+			if(hasDamageKeyword(keywords,tooltip) && notFalsePositive(data[champ]["name"], s)) {
+
+				//if the spell does not have 'damamge' in its level scalings labels...
+				// if(damageNotInScalings(spell.leveltip.label)) {
+				if(!hasDamageKeyword(keywords_withSquiggle,tooltip)) {
+					results += "<li><b><h3>" + champ + " " + spellLetter + ": " + tooltip + "</h3></b></li>";
+				} else {
+					results += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
+
+				}
+			}
+
+			
+		}
+
+	results += "</li>";
+
+
+	}
+
+	$("#content").html(results);
+}
+
+var hasDamageKeyword = function(keywords, tooltip) {
+	for(var i = 0; i < keywords.length; i++) {
+		if(tooltip.toLowerCase().indexOf(keywords[i]) >= 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+var notFalsePositive = function(champName, spellNumber) {
+	var spellName = "";
+	switch(spellNumber) {
+		case 0:
+			spellName = "Q";
+			break;
+		case 1:
+			spellName = "W";
+			break;
+		case 2:
+			spellName = "E";
+			break;
+		case 3:
+			spellName = "R";
+			break;
+		case 4:
+			spellName = "Q2";
+			break;
+		case 5:
+			spellName = "W2";
+			break;
+		case 6:
+			spellName = "E2";
+			break;
+		case 7:
+			spellName = "R2";
+			break;
+		default:
+			break;
+	}
+
+	var spell = champName + spellName;
+
+	var falsePositives =
+		["PoppyW","PoppyR","RyzeR","AnnieE","KarmaR","HeimerdingerR","AlistarR","VayneW","VarusW",
+		"Udyr","RivenE","GalioW","ViW","IreliaW","AatroxW","NunuQ","Twisted FateE","QuinnW",
+		"SivirW","TeemoE","ZileanR","JinxQ","YorickR","BlitzcrankE","BraumE","TwitchQ",
+		"TwitchE","TwitchR","Master YiE","ZyraW","ZedR","Kog'MawW","RengarR","WarwickQ","JayceW2","JayceR2"];
+	if(falsePositives.indexOf(spell) >= 0 || falsePositives.indexOf(champName) >= 0) {
+		return false;
+	}
+	return true;
+}
+
 //Only looks at scaling coefficients
 var naiveFindMostEfficient = function(data) {
 
+}
+
+//Uses labels to find most efficient
+var findMostEfficient_withLabels = function(data) {
+	results = {};
+
+	var results = "<ul>";
+	for(var champ in data) {
+		var champSpells = data[champ]["spells"];
+
+		for(var s = 0; s < champSpells.length; s++) {
+			var spell = champSpells[s];
+			var label = spell.leveltip.label;
+
+
+			
+		}
+
+	results += "</li>";
+
+
+	}
+
+	$("#content").html(results);
+}
+
+//Uses sanitzedTooltip to find most efficient
+var findMostEfficient_withTooltip = function(data) {
+	results = {};
+
+	var results = "<ul>";
+	for(var champ in data) {
+		var champSpells = data[champ]["spells"];
+
+		for(var s = 0; s < champSpells.length; s++) {
+			var spell = champSpells[s];
+			var label = spell.leveltip.label;
+
+
+			
+		}
+
+	results += "</li>";
+
+
+	}
+
+	$("#content").html(results);
 }
