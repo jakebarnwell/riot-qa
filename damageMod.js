@@ -226,7 +226,7 @@ var damageMod = {
 		"R": {
 			"override": {
 				"base": "e2",
-				"scale" "f1"
+				"scale": "f1"
 			},
 			"multiplyBy": 2
 		}

@@ -15,7 +15,7 @@ var findMostEffectiveSpell = function() {
 
 	$.get(request_URL, function(response) {
 		allData = response.data;
-		showTooltipsNotHavingDamageKeywordsBeforeDamage(response.data);
+		doAll(response.data);
 	}).fail(function(jqxhr) {
 	    var response = $.parseJSON(jqxhr.responseText);
 	    alert("API query failed. Perhaps an incorrect API Key?");
@@ -23,166 +23,7 @@ var findMostEffectiveSpell = function() {
 
 };
 
-var doStuff = function(data) {
-	var abilitypower = 200;
-	var attackdamage = 200;
-	var cooldownreduction = 15; // In percent, max 40%
-
-	var spellDamage_byChampion = [];
-
-	$("#content").html(JSON.stringify(data, null, 4));
-	for(var champ in data) {
-		var champData = data.champ;
-
-		var champSpellDamage = {};
-		champSpellDamage.champion = champData.name;
-		champSpellDamage.AP = abilitypower;
-		champSpellDamage.AD = attackdamage;
-		champSpellDamage.CDR = cooldownreduction;
-
-		var Q = champData.spells[0];
-		// Q_dmg = Q.effect[1][Q.maxrank-1] + 
-		//For now, only scale with ad/ap/cdr, nothing else.
-
-
-
-
-		spellDamage_byChampion.append(champSpellDamage);
-
-	}
-};
-
-var showScaleFactors = function(data) {
-	// $("#content").html(JSON.stringify(data, null, 4));
-	results = {};
-
-	for(var champ in data) {
-		// console.log(champ);
-		var champSpells = data[champ]["spells"];
-		// console.log(champSpells);
-		// console.log(champSpells);
-
-		var scalings = [];
-
-		for(var s = 0; s < champSpells.length; s++) {
-			var spell = champSpells[s];
-			// console.log(spell);
-
-
-			var vars = spell.vars;
-
-			if(vars) {
-
-				for(var v = 0; v < vars.length; v++) {
-					var q = vars[v]["link"];
-					if(["bonusattackdamage","spelldamage","attackdamage","bonushealth","armor"].indexOf(q) < 0) {
-						scalings[scalings.length] = q;
-					}
-				}
-
-				results[champ] = scalings;
-			}
-		}
-
-
-	}
-
-	$("#content").html(JSON.stringify(results, null, 4));
-}
-
-var showSanitizedTooltips = function(data) {
-	results = {};
-
-	var results = "<ul>";
-	for(var champ in data) {
-		// console.log(champ);
-		var champSpells = data[champ]["spells"];
-		// console.log(champSpells);
-		// console.log(champSpells);
-
-		
-
-		for(var s = 0; s < champSpells.length; s++) {
-			var spell = champSpells[s];
-			// console.log(spell);
-
-
-			var sanitizedTooltip = spell.sanitizedTooltip;
-
-			// results[champ + "" + s] = sanitizedTooltip;
-			results += "<li>" + sanitizedTooltip + "</li>";
-			
-		}
-
-	results += "</li>";
-
-
-	}
-
-	$("#content").html(results);
-
-}
-
-var showLevelUpScalings = function(data) {
-	results = {};
-
-	var results = "<ul>";
-	for(var champ in data) {
-		// console.log(champ);
-		var champSpells = data[champ]["spells"];
-		// console.log(champSpells);
-		// console.log(champSpells);
-
-		
-
-		for(var s = 0; s < champSpells.length; s++) {
-			var spell = champSpells[s];
-			// console.log(spell);
-
-
-			var label = spell.leveltip.label;
-
-			var spellLetter = "R";
-			if(s === 0) {
-				spellLetter = "Q";
-			} else if(s === 1) {
-				spellLetter = "W";
-			} else if(s === 2) {
-				spellLetter = "E";
-			}
-
-			//if the spell mentions damage in its sanitized description...
-			if(spell.sanitizedTooltip.toLowerCase().indexOf("damage") >= 0) {
-
-				//if the spell does not have 'damamge' in its level scalings labels...
-				// if(damageNotInScalings(spell.leveltip.label)) {
-				if(true) {
-					results += "<li>" + champ + " " + spellLetter + ": " + label + "</li>";
-				}
-			}
-
-			
-		}
-
-	results += "</li>";
-
-
-	}
-
-	$("#content").html(results);
-}
-
-var damageNotInScalings = function(labels) {
-	var hasDamage = false;
-	for(var i = 0; i < labels.length; i++) {
-		if(labels[i].toLowerCase().indexOf("damage") >= 0) {
-			hasDamage = true;
-		}
-	}
-	return !hasDamage;
-}
-
-var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
+var doAll = function(data) {
 	results = {};
 
 	var numZero = 0;
@@ -204,29 +45,9 @@ var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
 
 			var tooltip = spell.sanitizedTooltip;
 
-			var keywords = ["afflicts","cleaves","damaging","shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];
-			var keywords_withSquiggle = [];
-			for(var k in keywords) {
-				keywords_withSquiggle[k] = keywords[k] + " {{";
-			}
-			
+			var keywords = ["afflicts","cleaves","damaging","shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];		
 
-			var spellLetter = "R";
-			if(s === 0) {
-				spellLetter = "Q";
-			} else if(s === 1) {
-				spellLetter = "W";
-			} else if(s === 2) {
-				spellLetter = "E";
-			} else if(s === 4) {
-				spellLetter = "Q2";
-			} else if(s === 5) {
-				spellLetter = "W2";
-			} else if(s === 6) {
-				spellLetter = "E2";
-			} else if(s === 7) {
-				spellLetter = "R2";
-			}
+			var spellLetter = getSpellLetter(s);
 
 			//if the spell mentions damage in its sanitized description, or it's in negatives list...
 			if((trueNegative(data[champ]["name"], s) || (hasDamageKeyword(keywords,tooltip) && notFalsePositive(data[champ]["name"], s)))) {
@@ -267,6 +88,40 @@ var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
 	console.log("numZero is " + numZero);
 	console.log("numValid is " + numValid);
 	$("#content").html(results);
+}
+
+var getSpellLetter = function(spellNumber) {
+	var spellName = "";
+	switch(spellNumber) {
+		case 0:
+			spellName = "Q";
+			break;
+		case 1:
+			spellName = "W";
+			break;
+		case 2:
+			spellName = "E";
+			break;
+		case 3:
+			spellName = "R";
+			break;
+		case 4:
+			spellName = "Q2";
+			break;
+		case 5:
+			spellName = "W2";
+			break;
+		case 6:
+			spellName = "E2";
+			break;
+		case 7:
+			spellName = "R2";
+			break;
+		default:
+			break;
+	}
+
+	return spellName;
 }
 
 var hasDamageKeyword = function(keywords, tooltip) {
@@ -478,35 +333,7 @@ var removeBadPercents = function(champ, spellNumber, matches) {
 	var newMatches = [];
 
 	var badPercentages = ["KhazixW","NidaleeQ2","LucianQ"];
-	var spellName = "";
-	switch(spellNumber) {
-		case 0:
-			spellName = "Q";
-			break;
-		case 1:
-			spellName = "W";
-			break;
-		case 2:
-			spellName = "E";
-			break;
-		case 3:
-			spellName = "R";
-			break;
-		case 4:
-			spellName = "Q2";
-			break;
-		case 5:
-			spellName = "W2";
-			break;
-		case 6:
-			spellName = "E2";
-			break;
-		case 7:
-			spellName = "R2";
-			break;
-		default:
-			break;
-	}
+	var spellName = getSpellLetter(spellNumber);
 
 	var spell = champ + spellName;
 
@@ -525,36 +352,7 @@ var removeBadPercents = function(champ, spellNumber, matches) {
 }
 
 var notFalsePositive = function(champName, spellNumber) {
-	var spellName = "";
-	switch(spellNumber) {
-		case 0:
-			spellName = "Q";
-			break;
-		case 1:
-			spellName = "W";
-			break;
-		case 2:
-			spellName = "E";
-			break;
-		case 3:
-			spellName = "R";
-			break;
-		case 4:
-			spellName = "Q2";
-			break;
-		case 5:
-			spellName = "W2";
-			break;
-		case 6:
-			spellName = "E2";
-			break;
-		case 7:
-			spellName = "R2";
-			break;
-		default:
-			break;
-	}
-
+	var spellName = getSpellLetter(spellNumber);
 	var spell = champName + spellName;
 
 	var falsePositives =
@@ -570,35 +368,7 @@ var notFalsePositive = function(champName, spellNumber) {
 }
 
 var trueNegative = function(champName, spellNumber) {
-	var spellName = "";
-	switch(spellNumber) {
-		case 0:
-			spellName = "Q";
-			break;
-		case 1:
-			spellName = "W";
-			break;
-		case 2:
-			spellName = "E";
-			break;
-		case 3:
-			spellName = "R";
-			break;
-		case 4:
-			spellName = "Q2";
-			break;
-		case 5:
-			spellName = "W2";
-			break;
-		case 6:
-			spellName = "E2";
-			break;
-		case 7:
-			spellName = "R2";
-			break;
-		default:
-			break;
-	}
+	var spellName = getSpellLetter(spellNumber);
 
 	var spell = champName + spellName;
 
