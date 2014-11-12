@@ -14,3 +14,6 @@ min proc
 
 
 Look at level up tags to easily find damage?
+
+
+Need IE8 + for reduce

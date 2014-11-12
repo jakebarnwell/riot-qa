@@ -8,18 +8,22 @@ $(document).ready(function() {
 });
 
 var findMostEffectiveSpell = function() {
-	var API_key = "82e1d9e7-6d06-4345-b3ac-bcad6b8e4bbf";
-	var request_URL =
-		"https://na.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=spells,stats&api_key="
-		+ API_key;
+	// var API_key = "82e1d9e7-6d06-4345-b3ac-bcad6b8e4bbf";
+	// var request_URL =
+	// 	"https://na.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=spells,stats&api_key="
+	// 	+ API_key;
 
-	$.get(request_URL, function(response) {
-		allData = response.data;
-		doAll(response.data);
-	}).fail(function(jqxhr) {
-	    var response = $.parseJSON(jqxhr.responseText);
-	    alert("API query failed. Perhaps an incorrect API Key?");
-  	});
+	// $.get(request_URL, function(response) {
+	// 	allData = response.data;
+	// 	doAll(response.data);
+	// }).fail(function(jqxhr) {
+	//     var response = $.parseJSON(jqxhr.responseText);
+	//     alert("API query failed. Perhaps an incorrect API Key?");
+ //  	});
+
+  	allData = all_champs.data;
+  	// console.log(allData);
+  	doAll(allData);
 
 };
 
@@ -56,6 +60,7 @@ var doAll = function(data) {
 				// results += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
 				var parsedDamageText = getPortion(keywords,tooltip);
 				parsedDamageText = removeReducedDamageTokens(parsedDamageText);
+				removeErroneousParsings(data[champ]["name"], getSpellLetter(s), parsedDamageText);
 
 				var damage = parseDamage(champ, s, parsedDamageText);
 
@@ -63,6 +68,7 @@ var doAll = function(data) {
 
 
 				results += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + parsedDamageText + "</li>";
+				results += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + damage + "</li>";
 
 				
 
@@ -160,13 +166,43 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 			var matches = text.match(/(({{ ?)[eaf0-9]+( ?}}\)?%?))|([0-9]+%)/g);
 
 			matches = removeBadPercents(champ, spellNumber, matches);
-			separateDamages.push(parseDamageFromRegexMatches(champ, spellNumber, matches, text));
+			var parsedDamage = parseDamageFromRegexMatches(champ, spellNumber, matches, text);
+
+			//This block applies the "override" features--the damages that we manually
+			// take care of instead of allowing the computer to try to parse them,
+			// the reason being that the parser, for these few spells that we
+			// override, doesn't work too well.
+			// parsedDamage = applyOverrides(champ, spellNumber, matches, text);
+
+			parsedDamage = modifyDamage(parsedDamage, champ, spellNumber, text);
+
+			separateDamages.push(parsedDamage);
 		}
 	}
-	console.log(separateDamages);
+
+	// This block applies the "either/or" commane, i.e. if there are two options for
+	// a spell, you pick one (and we go with the one that does the more damage):
+	// e.g. Fizz' playful/trickster, you can either land straight down or move
+	// laterally to do less damage.
+	var champName = allData[champ]["name"];
+	try{
+		if(damageMod[champName][spellLetter]["eitherOr"]) {
+			dmg = Math.max.apply(this, separateDamages);
+		} else {
+			dmg = separateDamages.reduce(function(x,y) {return x+y}, 0);
+		}
+	} catch(e) {
+		dmg = separateDamages.reduce(function(x,y) {return x+y}, 0);
+	}
 
 
-	return 0;
+
+
+	return dmg;
+}
+
+var applyOverrides = function(champ, spellNumber, matches, text) {
+	return -5;
 }
 
 var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, text) {
@@ -205,7 +241,7 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 							dmg += (AD * coeff);
 						} else if(scale["link"] === "bonusattackdamage") {
 							var baseAD = stats["attackdamage"] + 18*stats["attackdamageperlevel"];
-							var bonusAD = (AD - baseAD >= 0 ? AD - baseAD : 0);
+							var bonusAD = Math.max(AD - baseAD, 0);
 							dmg += (bonusAD * coeff);
 						} else if(scale["link"] === "armor") {
 							var armor = stats["armor"] + 18*stats["armorperlevel"];
@@ -213,12 +249,12 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 						} else if(scale["link"] === "bonusspellblock") {
 							var baseMR = stats["spellblock"] + 18*stats["spellblockperlevel"];
 							var MR = baseMR; //Set this since we assume no items or anything. Meh. Obviously this can be changed in the future.
-							var bonusMR = (MR - baseMR >= 0 ? MR - baseMR : 0);
+							var bonusMR = Math.max(MR - baseMR, 0);
 							dmg += (bonusMR * coeff);
 						} else if(scale["link"] === "bonushealth") {
 							var baseHealth = stats["hp"] + 18*stats["hpperlevel"];
 							var health = baseHealth; //Again, assume no items
-							var bonusHealth = (health - baseHealth >= 0 ? health - baseHealth : 0);
+							var bonusHealth = Math.max(health - baseHealth, 0);
 							dmg += (bonusHealth * coeff);
 						} else {
 							console.log("Can't find " + scale["link"]);
@@ -259,7 +295,7 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 								percent += (AD * coeff);
 							} else if(scale["link"] === "bonusattackdamage") {
 								var baseAD = stats["attackdamage"] + 18*stats["attackdamageperlevel"];
-								var bonusAD = (AD - baseAD >= 0 ? AD - baseAD : 0);
+								var bonusAD = Math.max(AD - baseAD, 0);
 								percent += (bonusAD * coeff);
 							} else if(scale["link"] === "armor") {
 								var armor = stats["armor"] + 18*stats["armorperlevel"];
@@ -267,12 +303,12 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 							} else if(scale["link"] === "bonusspellblock") {
 								var baseMR = stats["spellblock"] + 18*stats["spellblockperlevel"];
 								var MR = baseMR; //Set this since we assume no items or anything.
-								var bonusMR = (MR - baseMR >= 0 ? MR - baseMR : 0);
+								var bonusMR = Math.max(MR - baseMR, 0);
 								percent += (bonusMR * coeff);
 							} else if(scale["link"] === "bonushealth") {
 								var baseHealth = stats["hp"] + 18*stats["hpperlevel"];
 								var health = baseHealth; //Again, assume no items
-								var bonusHealth = (health - baseHealth >= 0 ? health - baseHealth : 0);
+								var bonusHealth = Math.max(health - baseHealth, 0);
 								percent += (bonusHealth * coeff);
 							} else {
 								console.log("Can't find " + scale["link"]);
@@ -293,7 +329,7 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 				if(substr.indexOf("bonus health") >= 0) {
 					var baseHealth = stats["hp"] + 18*stats["hpperlevel"];
 					var health = baseHealth; //Again, assume no items
-					var bonusHealth = (health - baseHealth >= 0 ? health - baseHealth : 0);
+					var bonusHealth = Math.max(health - baseHealth, 0);
 
 					dmg += (bonusHealth * coeff);
 				} else if(substr.indexOf("braum") >= 0) { //This is actually the only case
@@ -309,7 +345,7 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 				dmg += (baseDmg * coeff);
 			} else if(substr.indexOf("bonus attack damage") >= 0) {
 				var baseAD = stats["attackdamage"] + 18*stats["attackdamageperlevel"];
-				var bonusAD = (AD - baseAD >= 0 ? AD - baseAD : 0);
+				var bonusAD = Math.max(AD - baseAD, 0);
 				dmg += (bonusAD * coeff);
 			} else { //Assume it's just a damage multiplier then
 				dmg *= (1 + percent);
@@ -318,6 +354,150 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 	}
 
 	return dmg;
+}
+
+var modifyDamage = function(dmg, champ, spellNumber, text) {
+	// console.log("Here");
+	var modifiedDmg = dmg;
+	var champName = allData[champ]["name"];
+
+	try {
+		var mod = damageMod[champName][getSpellLetter(spellNumber)];
+		console.log("modify Damage working. At " + dmg + ", " + champ + ", " + spellNumber + ", " + text);
+			
+		var tokens = mod["forStatementContaining"];
+
+		if(!tokens || (tokens && tokensMatchStatement(tokens, text))) {
+			console.log("Inside of this if statement");
+			if(mod["multiplyBy"]) {
+				console.log("here1");
+				modifiedDmg *= mod["multiplyBy"];
+			}
+			if(mod["perSecond"]) {
+				console.log("here2");
+				var duration = mod["lasts"];
+				console.log("duration = " + duration);
+				if((typeof duration) === "string") {
+					console.log("Got here 254");
+					var durations = duration.split(" ");
+					durationVals = getTokenValues(durations, champ, spellNumber);
+					console.log(durationVals);
+					modifiedDmg *= durationVals.reduce(function(x,y) {return x+y}, 0);
+				} else {
+					modifiedDmg *= duration;
+				}
+			}
+		}
+		console.log("mod dmg is " + modifiedDmg);
+	
+	} catch(e) {
+		return dmg;
+	}
+
+	return modifiedDmg;
+}
+
+/* Takes as input an array of tokens e.g. ["e1", "f2", "a6"]
+Outputs an array of numbers and arrays; a number if the
+input was an "ex" input, the number being the final value; and
+an array of length 2 if the input was "fx" or "ax"; the ordering is
+[scaling, coeff] e.g. ["armor", 0.5].
+*/
+var getTokenValues = function(tokens, champ, spellNumber) {
+	console.log("inside tokenvalu");
+	var stats = allData[champ]["stats"];
+	var tokenVals = [];
+
+	for(var t in tokens) {
+		var token = tokens[t];
+		if(token[0] === "e") {
+			var index = parseInt(token[1]);
+			var eff = allData[champ]["spells"][spellNumber]["effect"][index];
+			tokenVals.push(eff[eff.length - 1]);
+		} else if(token[0] === "a" || token[0] === "f") {
+			var vars = allData[champ]["spells"][spellNumber]["vars"];
+			for(v in vars) {
+				var scale = vars[v];
+
+				if(scale["key"] === token) {
+					var result = 0;
+					var link = scale["link"];
+					var coeff = scale["coeff"][coeffs.length - 1];
+
+					if(link === "spelldamage") {
+						result = AP * coeff;
+					} else if(link === "attackdamage") {
+						result = AD * coeff;
+					} else if(link === "bonusattackdamage") {
+						var baseAD = stats["attackdamage"] + 18*stats["attackdamageperlevel"];
+						var bonusAD = Math.max(AD - baseAD, 0);
+						result = bonusAD * coeff;
+					} else if(link === "armor") {
+						var armor = stats["armor"] + 18*stats["armorperlevel"];
+						result = armor * coeff;
+					} else if(link === "bonusspellblock") {
+						var baseMR = stats["spellblock"] + 18*stats["spellblockperlevel"];
+						var MR = baseMR; //Set this since we assume no items or anything.
+						var bonusMR = Math.max(MR - baseMR, 0);
+						result = bonusMR * coeff;
+					} else if(link === "bonushealth") {
+						var baseHealth = stats["hp"] + 18*stats["hpperlevel"];
+						var health = baseHealth; //Again, assume no items
+						var bonusHealth = Math.max(health - baseHealth, 0);
+						result = bonusHealth * coeff;
+					} else {
+						;
+					}
+					tokenVals.push([result, link, coeff]);
+				}
+			}
+		} else {
+			console.log("Not a valid token!");
+		}
+	}
+
+	return tokenVals;
+}
+
+var removeErroneousParsings = function(champName, spellLetter, matches) {
+	if(damageMod[champName] && damageMod[champName][spellLetter]) {
+
+		var mod = damageMod[champName][spellLetter];
+		if(mod["override"]) {
+			return [];
+		}
+		if(mod["deleteStatementContaining"]) {
+			//The string with the statement to-be-deleted will look something
+			// like "e2" or "e2 a1". This splits it into an array.
+			console.log("Here at delete!");
+
+			var deleteTokens = mod["deleteStatementContaining"];
+
+			//We look through all of the parsed damage matches to find the one
+			// with all the required tokens in it.
+			for(var m = 0; m < matches.length; m++) {
+				if(tokensMatchStatement(deleteTokens, matches[m])) {
+					matches.splice(m, 1);
+					m--;
+				}
+				//Deletes the match if that's what we want to do.
+				
+			}
+
+		}
+	}
+}
+
+var tokensMatchStatement = function(tokens, statement) {
+	var tokens_list = tokens.split(" ");
+
+	for(var t in tokens_list) {
+		if(statement.indexOf(tokens_list[t]) < 0) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 var removeReducedDamageTokens = function(matches) {

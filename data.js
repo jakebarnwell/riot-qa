@@ -1,5 +1,5 @@
 var damageMod = {
-	"Casseiopeia": {
+	"Cassiopeia": {
 		"W": {
 			"perSecond": true,
 			"lasts": "e4 e3"

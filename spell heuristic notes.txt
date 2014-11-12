@@ -3,9 +3,6 @@ deals
 does
 suffer
 
-
-
-
 no keywords but should have:
 Azir e : damaging enemies hit for {{ e3 }} (+{{ a1 }}) 
 nid e? cougar form
@@ -201,32 +198,32 @@ x Sona Q : delete the % power chord
 x Kennen W: delete e2 since applies to auto attacks only every fifth
 x Soraka Q : x 1.5 since standing in middle
 
-
+Keywords for scaling factors:
 spelldamage
 bonusattackdamage
 armor
 attackdamage
 bonusspellblock (MR)
+bonushealth
 
+Different types of % scalings in damage parsings:
 target's maximum health
 their current health (enemy)
 target's missing health
 of its current health (enemy)
 of their missing health (enemy)
 of bonus health (me)
-of bonus attack damage
-of braum's max health
+of braum's max health (me)
 of target's current health
 
+of bonus attack damage (me)
 bonus base damage (i.e. percent multiple of the base dmg only)
 
+assume multiplicative if otherwise not stated!
 
-assume multiplicative if otherwise not said
-
-khazix not relevant
-nid takedown?
-lucian Q double counts the AD
-x swain e irrelevant (removed in damageMod.json)
-
-
+Notes on some % damage spells:
+khazix not relevant --> remove
+nid takedown? remove
+lucian Q double counts the % AD --> remove the one that's double counted
+swain e irrelevant --> remove
 
