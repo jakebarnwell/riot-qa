@@ -200,7 +200,7 @@ var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
 
 			var tooltip = spell.sanitizedTooltip;
 
-			var keywords = ["shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];
+			var keywords = ["damaging","shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];
 			var keywords_withSquiggle = [];
 			for(var k in keywords) {
 				keywords_withSquiggle[k] = keywords[k] + " {{";
@@ -267,7 +267,7 @@ var getPortion = function(keywords, tooltip) {
 
 	for(var k in keywords) {
 		var key = keywords[k];
-		var regex = new RegExp("("+key+" )([A-Za-z0-9:.;()\\[\\]\\+]+ ){0,4}([{(]+ )([eaf0-9().%{} \\+]*)([)}%]+ )(['%A-Za-z0-9:.;()\\[\\]\\+]+ ){0,12}(damage)", "g"); 
+		var regex = new RegExp("("+key+" )([A-Za-z0-9:.;()\\[\\]\\+]+ ){0,5}([{(]+ )([(plus)eaf0-9().%{} \\+]*)([)}%]+ )(['%A-Za-z0-9:.;()\\[\\]\\+]+ ){0,12}(damage)", "g"); 
 		var matches = tooltip.match(regex);
 		if(matches && matches.length) {
 			results = results.concat(matches);
