@@ -146,6 +146,7 @@ x Karht Q: doubles if alone
 x Karth e: per sec
 x Darius Q: additional dmg %
 x Darius W: % times base dmg
+x Darius R: multiply it by 2 since ult can do up to 2x dmg with full stacks
 (nvm) vayne Q: bonus damage
 (nvm) leona Q: addtl dmg
 x kha Q: isolation
@@ -196,3 +197,36 @@ x mummu W: per second, and deal with % ?
 x gp R: per second, for e3 seconds
 x velkkoz Q: listed twice? wut.
 x Nami E: Times e4
+x Sona Q : delete the % power chord
+x Kennen W: delete e2 since applies to auto attacks only every fifth
+x Soraka Q : x 1.5 since standing in middle
+
+
+spelldamage
+bonusattackdamage
+armor
+attackdamage
+bonusspellblock (MR)
+
+target's maximum health
+their current health (enemy)
+target's missing health
+of its current health (enemy)
+of their missing health (enemy)
+of bonus health (me)
+of bonus attack damage
+of braum's max health
+of target's current health
+
+bonus base damage (i.e. percent multiple of the base dmg only)
+
+
+assume multiplicative if otherwise not said
+
+khazix not relevant
+nid takedown?
+lucian Q double counts the AD
+x swain e irrelevant (removed in damageMod.json)
+
+
+

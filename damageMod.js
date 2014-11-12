@@ -1,4 +1,4 @@
-{
+var damageMod = {
 	"Casseiopeia": {
 		"W": {
 			"perSecond": true,
@@ -189,6 +189,9 @@
 			"perSecond": true,
 			"lasts": 3
 		},
+		"E": {
+			"deleteStatementContaining": "e2"
+		},
 		"R": {
 			"toggle": true
 		}
@@ -286,6 +289,9 @@
 		},
 		"W": {
 			"percentOfAD": "e4"
+		},
+		"R": {
+			"multiplyBy": 2
 		}
 	},
 	"Gnar": {
@@ -381,5 +387,20 @@
 		"W": {
 			"special": "amumu-w"
 		}
+	},
+	"Sona": {
+		"Q": {
+			"deleteStatementContaining": "e6"
+		}
+	},
+	"Kennen": {
+		"W": {
+			"deleteStatementContaining": "e2"
+		}
+	},
+	"Soraka": {
+		"Q": {
+			"multiplyBy": 1.5
+		}
 	}
-}
+};
