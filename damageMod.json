@@ -126,7 +126,7 @@
 	},
 	"Veigar": {
 		"R": {
-			"special": "veigarult"
+			"special": "veigar-r"
 		}
 	},
 	"Graves": {
@@ -311,9 +311,75 @@
 			"special": "sejuani-w"			
 		}
 	},
-	
-
-
-
-
+	"Rengar": {
+		"Q": {
+			"special": "rengar-q"
+		},
+		"W": {
+			"deleteStatementContaining": "f2 a1"
+		},
+		"E": {
+			"deleteStatementContaining": "f1 a1"
+		}
+	},
+	"Skarner": {
+		"R": {
+			"deleteStatementContaining": "e3"
+		}
+	},
+	"Miss Fortune": {
+		"Q": {
+			"override": {
+				"base": "e4",
+				"scale": "a2",
+				"specialScale": "100 AD"
+			}
+		}
+	},
+	"Yorick": {
+		"Q": {
+			"deleteStatementContaining": "e2"
+		}
+	},
+	"Zac": {
+		"W": {
+			"special": "zac-w"
+		}
+	},
+	"Nasus": {
+		"E": {
+			"perSecond": true,
+			"lasts": "e3",
+			"forStatementContaining": "e1 a1"
+		}
+	},
+	"Renekton": {
+		"Q": {
+			"override": {
+				"base": "e4",
+				"scale": "f2"
+			}
+		},
+		"W": {
+			"override": {
+				"base": "e4",
+				"scale": "f2"
+			}
+		},
+		"E": {
+			"override": {
+				"base": "e3",
+				"scale": "f2"
+			}
+		},
+		"R": {
+			"perSecond": true,
+			"lasts": 15
+		}
+	},
+	"Amumu": {
+		"W": {
+			"special": "amumu-w"
+		}
+	}
 }

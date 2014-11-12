@@ -122,8 +122,8 @@ Need to also remove "% less damage" debuffs (ori, cait, ez, naut, jax)
 
 Auxiliary notes from parsed damage texts:
 x Cass w: ticks for damage each second. do e4+e3 seconds
-Poppy Q: does also 8% their max hp
-Sion W: e4% of target's max health
+y Poppy Q: does also 8% their max hp
+y Sion W: e4% of target's max health
 x Annie R: There is also damage  per second for e6 seconds
 x Naut E: Each successive one does reduced damage if to the same person, so just do x 2
 x Ahri Q: Does twice what's shown since it goes out and in
@@ -134,7 +134,7 @@ x Viktor E...
 x Viktor R has more
 x Anivia E: Doudlbe dmg if frosted
 x Singed Q: Toggle; per second
-Mao W: Percent max health 
+y Mao W: Percent max health 
 x Mao R: stored energy
 x Fizz E: Either/or, not both
 x Heimy W: 5 rockets but only do ~50% more. see json object.
@@ -160,21 +160,21 @@ x gnar W:
 x gnar E:
 x graves Q: dmg multiplier 
 x Irelia R: times 4
-leesin q: % dmg
+y leesin q: % dmg
 x tf w: pick only 1, not all
 x jax E: ...
 x Shyv W: times 3
 x MundoW: That's per second
 x di W: times 3
 x sej W ?
-zac W: Plus some % stuff
+x zac W: Plus some % stuff
 x sivir Q: a single target can only take an additional 85% of the damage on the way back
-Rengar needs love
-skar r ? the e3
+x Rengar needs love
+x skar r ? the e3
 x Xerath W: either or -- just delete the empowered one, plug in 1.5
 x xerath R: times 3
-nasus e: 
-renekton?
+x nasus e: 
+x renekton?
 x Draven R: twice
 x Shaco W: times 9
 x Swain Q: per second for 3 sec
@@ -187,12 +187,12 @@ x fidd R: times 5
 x fiora R: fix
 x rammus R:  per sec for e3 seconds
 x leblanc R: either/or, first is times 2
-yorick Q: 
-mf Q: 
+x yorick Q: 
+x mf Q: 
 x Wukong R: times 4
 x xin Q: times 3
 xin R: with % dmg
-mummu W: per second, and deal with % ?
+x mummu W: per second, and deal with % ?
 x gp R: per second, for e3 seconds
 x velkkoz Q: listed twice? wut.
 x Nami E: Times e4
