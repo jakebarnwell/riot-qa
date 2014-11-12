@@ -183,6 +183,7 @@ var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
 	results = {};
 
 	var numZero = 0;
+	var numValid = 0;
 
 	var results = "<ol>";
 	for(var champ in data) {
@@ -200,7 +201,7 @@ var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
 
 			var tooltip = spell.sanitizedTooltip;
 
-			var keywords = ["damaging","shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];
+			var keywords = ["afflicts","cleaves","damaging","shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];
 			var keywords_withSquiggle = [];
 			for(var k in keywords) {
 				keywords_withSquiggle[k] = keywords[k] + " {{";
@@ -214,30 +215,43 @@ var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
 				spellLetter = "W";
 			} else if(s === 2) {
 				spellLetter = "E";
+			} else if(s === 4) {
+				spellLetter = "Q2";
+			} else if(s === 5) {
+				spellLetter = "W2";
+			} else if(s === 6) {
+				spellLetter = "E2";
+			} else if(s === 7) {
+				spellLetter = "R2";
 			}
 
-			//if the spell mentions damage in its sanitized description...
-			if(trueNegative(data[champ]["name"], s) || (hasDamageKeyword(keywords,tooltip) && notFalsePositive(data[champ]["name"], s))) {
+			//if the spell mentions damage in its sanitized description, or it's in negatives list...
+			if((trueNegative(data[champ]["name"], s) || (hasDamageKeyword(keywords,tooltip) && notFalsePositive(data[champ]["name"], s)))) {
+				numValid += 1;
 
-				//if the spell does not have 'damamge' in its level scalings labels...
-				// if(damageNotInScalings(spell.leveltip.label)) {
-				// if(!hasDamageKeyword(keywords_withSquiggle,tooltip)) {
-				if(false) {
-					results += "<li><b><h3>" + champ + " " + spellLetter + ": " + tooltip + "</h3></b></li>";
-				} else { //The majority of cases fall here; these are the ones I want
-					results += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
-					var thing = getPortion(keywords,tooltip);
-					results += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + thing + "</li>";
+				results += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
+				var parsedDamageText = getPortion(keywords,tooltip);
+				parsedDamageText = removeReducedDamageTokens(parsedDamageText);
+
+				var damage = parseDamage(data[champ]["name"], s, parsedDamageText);
 
 
 
-					if(thing.length === 0) {
-						numZero += 1;
-						console.log("Champ: " + data[champ]["name"] + ", spell: " + s);
-						results += "<li><h1> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + thing + "</h1></li>";
-					}
 
+				results += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + parsedDamageText + "</li>";
+
+				
+
+
+
+				if(parsedDamageText.length === 0) {
+					numZero += 1;
+					var alternateD
+					console.log("Champ: " + data[champ]["name"] + ", spell: " + s);
+					results += "<li><h1> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + parsedDamageText + "</h1></li>";
 				}
+
+				
 			}
 
 			
@@ -248,12 +262,13 @@ var showTooltipsNotHavingDamageKeywordsBeforeDamage = function(data) {
 
 	}
 	console.log("numZero is " + numZero);
+	console.log("numValid is " + numValid);
 	$("#content").html(results);
 }
 
 var hasDamageKeyword = function(keywords, tooltip) {
 	for(var i = 0; i < keywords.length; i++) {
-		if(tooltip.toLowerCase().indexOf(keywords[i]) >= 0) {
+		if(tooltip.toLowerCase().indexOf(keywords[i] + " ") >= 0) {
 			return true;
 		}
 	}
@@ -275,6 +290,26 @@ var getPortion = function(keywords, tooltip) {
 	}
 
 	return results;
+}
+
+var parseDamage = function(champName, spellNumber, parsedTexts) {
+	if(!parsedTexts || !parsedTexts.length) {
+		return -1;
+	}
+
+	for(var i in parsedTexts) {
+		var text = parsedTexts[i];
+	}
+	return 0;
+}
+
+var removeReducedDamageTokens = function(matches) {
+	for(var i in matches) {
+		if(matches[i].indexOf("reduced") >= 0 || matches[i].indexOf("less") >= 0) {
+			matches.splice(i,1);
+		}
+	}
+	return matches;
 }
 
 var notFalsePositive = function(champName, spellNumber) {
@@ -314,7 +349,8 @@ var notFalsePositive = function(champName, spellNumber) {
 		["PoppyW","PoppyR","RyzeR","AnnieE","KarmaR","HeimerdingerR","AlistarR","VayneW","VarusW",
 		"Udyr","RivenE","GalioW","ViW","IreliaW","AatroxW","NunuQ","Twisted FateE","QuinnW",
 		"SivirW","TeemoE","ZileanR","JinxQ","YorickR","BlitzcrankE","BraumE","TwitchQ",
-		"TwitchE","TwitchR","Master YiE","ZyraW","ZedR","Kog'MawW","RengarR","WarwickQ","JayceW2","JayceR2"];
+		"TwitchE","TwitchR","Master YiE","ZyraW","ZedR","Kog'MawW","RengarR","WarwickQ","JayceW2","JayceR2",
+		"EliseR","EliseR2","ShacoQ","KayleE","JaxR","NasusQ","DravenQ","Cho'GathE","Miss FortuneW"];
 	if(falsePositives.indexOf(spell) >= 0 || falsePositives.indexOf(champName) >= 0) {
 		return false;
 	}

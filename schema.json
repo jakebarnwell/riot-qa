@@ -1,10 +1,319 @@
 {
-	champion: "Ezreal",
-	CDR: 15,
-	AP: 260,
-	AD: 212,
-	Q: 312,
-	W: 122,
-	E: 98,
-	R: 243
+	"Casseiopeia": {
+		"W": {
+			"perSecond": true,
+			"lasts": "e4 e3"
+		}
+	},
+	"Annie": {
+		"R": {
+			"perSecond": true,
+			"lasts": "e6",
+			"forStatementContaining": "e4 a2"
+		}
+	},
+	"Nautilus": {
+		"E": {
+			"multiplyBy": 2
+		}
+	},
+	"Ahri": {
+		"Q": {
+			"multiplyBy": 2
+		},
+		"W": {
+			"multiplyBy": 1.6
+		},
+		"E": {
+			"multiplyBy": 3
+		},
+		"R": {
+			"multiplyBy": 3
+		}
+	},
+	"Anivia": {
+		"E": {
+			"multiplyBy": 2
+		}
+	},
+	"Singed": {
+		"Q": {
+			"toggle": true
+		}
+	},
+	"Maokai": {
+		"R": {
+			"add": "e5"
+		}
+	},
+	"Fizz": {
+		"E": {
+			"eitherOr": true
+		}
+	},
+	"Heimerdinger": {
+		"W": {
+			"override": {
+				"base": "e6",
+				"scale": "f2"
+			} 
+		}
+	},
+	"Rumble": {
+		"E": {
+			"multiplyBy": 2
+		},
+		"R": {
+			"perSecond": true,
+			"lasts": 5
+		}
+	},
+	"Mordekaiser": {
+		"Q": {
+			"override": {
+				"base": "e1",
+				"scale": "f1 a2"
+			}
+		},
+		"W": {
+			"perSecond": true,
+			"last": 6
+		}
+	},
+	"Karthus": {
+		"Q": {
+			"multiplyBy": 2
+		},
+		"E": {
+			"toggle": true
+		}
+	},
+	"Kha'Zix": {
+		"Q": {
+			"override": {
+				"base": "e6",
+				"scale": "a2"
+			}
+		}
+	},
+	"Riven": {
+		"Q": {
+			"multiplyBy": 1.5
+		}
+	},
+	"Corkie": {
+		"W": {
+			"perSecond": true,
+			"lasts": 2
+		},
+		"E": {
+			"perSecond": true,
+			"lasts": "e1"
+		}
+	},
+	"Azir": {
+		"W": {
+			"deleteStatementContaining": "f2 a1"
+		}
+	},
+	"Nidalee": {
+		"Q": {
+			"override": {
+				"base": "e2",
+				"scale": "a1"
+			}
+		}
+	},
+	"Veigar": {
+		"R": {
+			"special": "veigarult"
+		}
+	},
+	"Graves": {
+		"Q": {
+			"multiplyBy": 1.8,
+			"deleteStatementContaining": "e4"
+		}
+	},
+	"Irelia": {
+		"R": {
+			"multiplyBy": 4
+		}
+	},
+	"Twisted Fate": {
+		"W": {
+			"eitherOr": true
+		}
+	},
+	"Shyvana": {
+		"W": {
+			"perSecond": true,
+			"lasts": 3
+		}
+	},
+	"Dr. Mundo": {
+		"W": {
+			"toggle": true
+		}
+	},
+	"Diana": {
+		"W": {
+			"multiplyBy": 3
+		}
+	},
+	"Sivir": {
+		"Q": {
+			"multiplyBy": 1.85
+		}
+	},
+	"Xerath": {
+		"W": {
+			"multiplyBy": 1.5
+		},
+		"R": {
+			"multiplyBy": 3
+		}
+	},
+	"Draven": {
+		"R": {
+			"multiplyBy": 2
+		}
+	},
+	"Shaco": {
+		"W": {
+			"multiplyBy": 9
+		}
+	},
+	"Swain": {
+		"Q": {
+			"perSecond": true,
+			"lasts": 3
+		},
+		"R": {
+			"toggle": true
+		}
+	},
+	"Ziggs": {
+		"R": {
+			"deleteStatementContaining": "e2"
+		}
+	},
+	"Janna": {
+		"Q": {
+			"multiplyBy": 3,
+			"forStatementContaining": "e2 a2"
+		}
+	},
+	"Talon": {
+		"Q": {
+			"add": "e1 f2"
+		}
+	},
+	"Fiddlesticks": {
+		"W": {
+			"perSecond": true,
+			"lasts": 5
+		},
+		"R": {
+			"perSecond": true,
+			"lasts": 5
+		}
+	},
+	"Fiora": {
+		"R": {
+			"override": {
+				"base": "e2",
+				"scale" "f1"
+			},
+			"multiplyBy": 2
+		}
+	},
+	"Rammus": {
+		"R": {
+			"perSecond": true,
+			"lasts": "e3"
+		}
+	},
+	"LeBlanc": {
+		"R": {
+			"eitherOr": true,
+			"multiplyBy": 2,
+			"forStatementContaining": "e3 a1"
+		}
+	},
+	"Wukong": {
+		"R": {
+			"perSecond": true,
+			"lasts": 4
+		}
+	},
+	"Xin Zhao": {
+		"Q": {
+			"multiplyBy": 3
+		}
+	},
+	"Gangplank": {
+		"R": {
+			"perSecond": true,
+			"lasts": "e3"
+		}
+	},
+	"Vel'Koz": {
+		"Q": {
+			"multiplyBy": 0.5
+		}
+	},
+	"Nami": {
+		"E": {
+			"multiplyBy": "e4"
+		}
+	},
+	"Viktor": {
+		"Q": {
+			"override": {
+				"base": "e1",
+				"scale": "a1"
+			}
+		},
+		"E": {
+			"deleteStatementContaining": "e2"
+		}
+	},
+	"Darius": {
+		"Q": {
+			"deleteStatementContaining": "e1",
+			"multiplyBy": 1.5
+		},
+		"W": {
+			"percentOfAD": "e4"
+		}
+	},
+	"Gnar": {
+		"Q": {
+			"deleteStatementContaining": "e7",
+			"eitherOr": true
+		},
+		"W": {
+			"deleteStatementContaining": "e1 a1 e2"
+		},
+		"E": {
+			"multiplyBy": 0.5,
+			"special": "gnar-e"
+		}
+	},
+	"Jax": {
+		"E": {
+			"deleteStatementContaining": "e5"
+		}
+	},
+	"Sejuani": {
+		"W": {
+			"special": "sejuani-w"			
+		}
+	},
+	
+
+
+
+
 }
