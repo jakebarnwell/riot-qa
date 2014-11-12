@@ -4,6 +4,7 @@ var AD = 100;
 var CDR = 0;
 
 $(document).ready(function() {
+	console.log("document ready");
 	findMostEffectiveSpell();
 });
 
@@ -28,6 +29,7 @@ var findMostEffectiveSpell = function() {
 };
 
 var doAll = function(data) {
+
 	results = {};
 
 	var numZero = 0;
@@ -99,6 +101,7 @@ var doAll = function(data) {
 }
 
 var calculateDPS = function(damage, champ, s) {
+
 	var dps = 0;
 
 	try {
@@ -121,6 +124,7 @@ var calculateDPS = function(damage, champ, s) {
 }
 
 var getSpellLetter = function(spellNumber) {
+
 	var spellName = "";
 	switch(spellNumber) {
 		case 0:
@@ -155,6 +159,7 @@ var getSpellLetter = function(spellNumber) {
 }
 
 var hasDamageKeyword = function(keywords, tooltip) {
+
 	for(var i = 0; i < keywords.length; i++) {
 		if(tooltip.toLowerCase().indexOf(keywords[i] + " ") >= 0) {
 			return true;
@@ -191,6 +196,7 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 
 			matches = removeBadPercents(champ, spellNumber, matches);
 			matches = overrideMatches(champ, spellNumber, matches);
+
 			var parsedDamage = parseDamageFromRegexMatches(champ, spellNumber, matches, text);
 
 			//This block applies the "override" features--the damages that we manually
@@ -200,10 +206,16 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 
 			// parsedDamage = applyOverrides(champ, spellNumber, matches, text);
 
+
 			parsedDamage = modifyDamageMult(parsedDamage, champ, spellNumber, text);
 
 			separateDamages.push(parsedDamage);
 		}
+	} else { //For the manual case when there are no auto matches
+		test(); //works fine... i'm having problems scoping manualDmg? it's weird
+
+		var parsedDamage = calculateManualSpells(champ, spellNumber);
+		separateDamages.push(parsedDamage);
 	}
 
 	// This block applies the "either/or" commane, i.e. if there are two options for
@@ -226,8 +238,32 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 
 
 
-
 	return dmg;
+}
+
+var test = function() {
+	console.log(manualDmg);
+
+}
+
+var calculateManualSpells = function(champ, spellNumber) {
+
+
+	console.log("Manual calculate for " + champ + " , " + spellNumber);
+	try {
+		console.log(allData[champ]["name"]);
+		console.log(manualDmg);
+		var manualText = manualDmg[allData[champ]["name"]][getSpellLetter(spellNumber)];
+		console.log("Test2");
+		var matches = manualText.match(/(({{ ?)[eaf0-9]+( ?}}\)?%?))|([0-9]+%)/g);
+		var manualDmg = parseDamageFromRegexMatches(champ, spellNumber, matches, manualText);
+		console.log("Successful manual calculate, with damage = " + manualDmg);
+		return manualDmg;
+	} catch(e) {
+		return 0;
+	}
+
+	return;
 }
 
 var overrideMatches = function(champ, spellNumber, matches) {

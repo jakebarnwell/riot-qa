@@ -405,6 +405,12 @@ var damageMod = {
 	}
 };
 
+var manualDmg = {
+	"Gragas": {
+		"W": "{{ e3 }} (+{{ a1 }}) plus {{ e2 }}% of the target's maximum Health"
+	}
+};
+
 /* Spells that the heuristic thinks are damaging spells but they aren't. (Actually, most
 of them are, it's just that they're not appropriate to find the most "efficient" spells
 with, e.g. auto-attack-enhancing spells). */
