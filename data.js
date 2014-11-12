@@ -77,7 +77,7 @@ var damageMod = {
 		},
 		"W": {
 			"perSecond": true,
-			"last": 6
+			"lasts": 6
 		}
 	},
 	"Karthus": {
@@ -337,9 +337,9 @@ var damageMod = {
 		"Q": {
 			"override": {
 				"base": "e4",
-				"scale": "a2",
-				"specialScale": "100 AD"
-			}
+				"scale": "a2"
+			},
+			"addScale": "100 AD"
 		}
 	},
 	"Yorick": {
