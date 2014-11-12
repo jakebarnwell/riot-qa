@@ -227,3 +227,33 @@ nid takedown? remove
 lucian Q double counts the % AD --> remove the one that's double counted
 swain e irrelevant --> remove
 
+Need to manually encode:
+
+grag w
+ryze q, w ,e
+sion q
+garen e
+morg w
+mord r
+varus q
+jayce e
+syndra r
+panth e
+riven r
+malz w
+vi q
+elise q
+elise q2
+voli w
+nunu r
+shyv q
+mundo q
+sej q
+quinn r
+hec e
+lucian r
+nasus r
+jinx r
+taric e
+velkoz r
+ez w
