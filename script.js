@@ -4,7 +4,7 @@ var AD = 200;
 var CDR = 0;
 
 $(document).ready(function() {
-	console.log("document ready");
+	// console.log("document ready");
 	findMostEffectiveSpell();
 });
 
@@ -81,7 +81,7 @@ var doAll = function(data) {
 				if(parsedDamageText.length === 0) {
 					numZero += 1;
 					var alternateD
-					console.log("Champ: " + data[champ]["name"] + ", spell: " + s);
+					// console.log("Champ: " + data[champ]["name"] + ", spell: " + s);
 					results += "<li><h1> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + parsedDamageText + "</h1></li>";
 				}
 
@@ -189,7 +189,7 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 	var dmg = -1;
 	var separateDamages = [];
 
-	if(parsedTexts && parsedTexts.length) {
+	if(parsedTexts && parsedTexts.length && !manualParse(champ, spellNumber)) {
 		for(var i in parsedTexts) {
 			var text = parsedTexts[i];
 			var matches = text.match(/(({{ ?)[eaf0-9]+( ?}}\)?%?))|([0-9]+%)/g);
@@ -212,7 +212,9 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 			separateDamages.push(parsedDamage);
 		}
 	} else { //For the manual case when there are no auto matches
-		console.log("In 'else'... for " + champ + ", " + spellNumber);
+		// console.log("In 'else'... for " + champ + ", " + spellNumber);
+
+		console.log("The pair " + champ + ", " + spellNumber + " is chosen for manual parse");
 
 		var parsedDamage = calculateManualSpells(champ, spellNumber);
 		parsedDamage = modifyDamageMult(parsedDamage, champ, spellNumber, "");
@@ -241,6 +243,21 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 
 
 	return dmg;
+}
+
+var manualParse = function(champ, spellNumber) {
+	try {
+		var x = manualDmg[allData[champ]["name"]][getSpellLetter(spellNumber)];
+		// console.log(x);
+		if(x) {
+			return true;
+		} else {
+			return false;
+		}
+	} catch(e) {
+		return false;
+	}
+
 }
 
 var test = function() {
@@ -320,7 +337,7 @@ var applyOverrides = function(champ, spellNumber, matches, text) {
 }
 
 var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, text) {
-	console.log("Parsing.... " + champ + ", " + spellNumber + ", regex matches = " + regexMatches);
+	// console.log("Parsing.... " + champ + ", " + spellNumber + ", regex matches = " + regexMatches);
 
 	// return 0;
 	var r = regexMatches;
@@ -332,7 +349,7 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 	var baseDmg = 0;
 
 	for(var i in r) {
-		console.log(champ + ", " + spellNumber + ", " + r[i]);
+		// console.log(champ + ", " + spellNumber + ", " + r[i]);
 		if(r[i].indexOf("%") < 0) { //So it's just a standard base/scale dmg
 			var token = r[i].substring(3, 5);
 			if(token[0] === "e") { //This is a base damage
@@ -347,7 +364,7 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 			}
 			console.log("dmg now equals " + dmg);
 		} else { //Else it's a percentage, probably of a health
-			console.log("Parsing percentage.... " + champ + ", " + spellNumber );
+			// console.log("Parsing percentage.... " + champ + ", " + spellNumber );
 			var coeff = 0;
 
 			var percent = 0;
@@ -415,14 +432,14 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 			var substr = text.substring(loc, text.length);
 
 			if(substr.indexOf("health") >= 0) { //So we're looking at some health
-				console.log("Inside health!");
+				// console.log("Inside health!");
 				if(substr.indexOf("bonus health") >= 0) {
 					var baseHealth = stats["hp"] + 18*stats["hpperlevel"];
 					var health = baseHealth; //Again, assume no items
 					var bonusHealth = Math.max(health - baseHealth, 0);
 
 					dmg += (bonusHealth * coeff);
-				} else if(substr.indexOf("braum") >= 0) { //This is actually the only case
+				} else if(substr.indexOf("braum") >= 0 || substr.indexOf("gnar") >= 0) { //This is actually the only case
 					var health = stats["hp"] + 18*stats["hpperlevel"];
 
 					dmg += (health * coeff);
@@ -447,7 +464,11 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 		}
 	}
 
-	return dmg;
+	if(champ === "Darius" && spellNumber == 1) {
+		return AD;
+	} else {
+		return dmg;
+	}
 }
 
 var modifyDamageMult = function(dmg, champ, spellNumber, text) {
@@ -465,7 +486,7 @@ var modifyDamageMult = function(dmg, champ, spellNumber, text) {
 			// console.log("Inside of this if statement");
 			if(mod["multiplyBy"]) {
 				if(typeof mod["multiplyBy"] === "string") {
-					console.log("multiplyBy is a string for " + champ + ", " + spellNumber);
+					// console.log("multiplyBy is a string for " + champ + ", " + spellNumber);
 					var e = getTokenValues([mod["multiplyBy"]], champ, spellNumber)[0];
 					modifiedDmg *= e;
 				} else {

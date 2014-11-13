@@ -126,8 +126,8 @@ var damageMod = {
 	},
 	"Veigar": {
 		"R": {
-			"special": "veigar-r"
-		}
+			"addScale": "80 AP"
+		} //I'm just approximating my own AP for their AP
 	},
 	"Graves": {
 		"Q": {
@@ -314,10 +314,6 @@ var damageMod = {
 		},
 		"W": {
 			"deleteStatementContaining": "e1 a1 e2"
-		},
-		"E": {
-			"multiplyBy": 0.5,
-			"special": "gnar-e"
 		}
 	},
 	"Jax": {
@@ -325,15 +321,7 @@ var damageMod = {
 			"deleteStatementContaining": "e5"
 		}
 	},
-	"Sejuani": {
-		"W": {
-			"special": "sejuani-w"			
-		}
-	},
 	"Rengar": {
-		"Q": {
-			"special": "rengar-q"
-		},
 		"W": {
 			"deleteStatementContaining": "f2 a1"
 		},
@@ -358,11 +346,6 @@ var damageMod = {
 	"Yorick": {
 		"Q": {
 			"deleteStatementContaining": "e2"
-		}
-	},
-	"Zac": {
-		"W": {
-			"special": "zac-w"
 		}
 	},
 	"Nasus": {
@@ -402,7 +385,7 @@ var damageMod = {
 	},
 	"Amumu": {
 		"W": {
-			"special": "amumu-w"
+			"toggle": true
 		}
 	},
 	"Sona": {
@@ -544,7 +527,20 @@ var manualDmg = {
 		"Q": "{{ e1 }} (+{{ a1 }}) plus (+{{ f1 }}) in magic damage.",
 		"W": "{{ e2 }} (+{{ a1 }}) plus (+{{ f1 }}) in magic damage.",
 		"E": "{{ e1 }} (+{{ a1 }}) plus (+{{ f1 }}) magic damage"
+	},
+	"Gnar": {
+		"E": "{{ e1 }} (+{{ f1 }}) [6% of Gnar's Max Health]"
+	},
+	"Sejuani": {
+		"W": "{{ e3 }} (+{{ a2 }}) {{ e5 }} (+{{ f1 }} (+{{ a1 }}) magic damage"
+	},
+	"Zac": {
+		"W": "{{ e1 }} Magic Damage +{{ e3 }}% (+{{ a1 }})% of the enemy's maximum Health"
+	},
+	"Amumu": {
+		"W": "{{ e2 }} magic damage plus {{ e1 }}% (+{{ a1 }})% of their maximum Health"
 	}
+	
 };
 
 /* Spells that the heuristic thinks are damaging spells but they aren't. (Actually, most
@@ -555,7 +551,8 @@ var falsePositives =
 	"Udyr","RivenE","GalioW","ViW","IreliaW","AatroxW","NunuQ","Twisted FateE","QuinnW",
 	"SivirW","TeemoE","ZileanR","JinxQ","YorickR","BlitzcrankE","BraumE","TwitchQ",
 	"TwitchE","TwitchR","Master YiE","ZyraW","ZedR","Kog'MawW","RengarR","WarwickQ","JayceW2","JayceR2",
-	"EliseR","EliseR2","ShacoQ","KayleE","JaxR","NasusQ","DravenQ","Cho'GathE","Miss FortuneW"];
+	"EliseR","EliseR2","ShacoQ","KayleE","JaxR","NasusQ","DravenQ","Cho'GathE","Miss FortuneW",
+	"RengarQ"];
 
 /* Spells that the heuristic thinks are not damaging spells when they in fact are. */
 var trueNegatives =
