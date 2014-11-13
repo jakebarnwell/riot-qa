@@ -1,3 +1,5 @@
+/* Modifications to damage calculations that must be made since the
+parser/heuristic missed them. */
 var damageMod = {
 	"Cassiopeia": {
 		"W": {
@@ -443,6 +445,7 @@ var damageMod = {
 	}
 };
 
+/* Spells that we have to manually encode since the heuristic got caught up by them */
 var manualDmg = {
 	"Gragas": {
 		"W": "{{ e3 }} (+{{ a1 }}) plus {{ e2 }}% of the target's maximum Health"

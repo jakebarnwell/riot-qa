@@ -1,9 +1,9 @@
+/* Jake Barnwell, 11/12/2014 */
 
 var allData;
 var AP = 100;
 var AD = 100;
 var CDR = 10;
-
 
 $(document).ready(function() {
   	allData = all_champs.data;

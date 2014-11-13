@@ -1,3 +1,4 @@
+/* Accessed and downloaded from the Riot Games API */
 var all_champs = {
    "data": {
       "Thresh": {
