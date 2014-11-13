@@ -217,9 +217,22 @@ var damageMod = {
 			"perSecond": true,
 			"lasts": 5
 		},
+		"E": {
+			"multiplyBy": 3
+		},
 		"R": {
 			"perSecond": true,
 			"lasts": 5
+		}
+	},
+	"Ryze": {
+		"E": {
+			"multiplyBy": 3
+		}
+	},
+	"Brand": {
+		"R": {
+			"multiplyBy": 3
 		}
 	},
 	"Fiora": {
@@ -357,6 +370,10 @@ var damageMod = {
 			"perSecond": true,
 			"lasts": "e3",
 			"forStatementContaining": "e1 a1"
+		},
+		"R": {
+			"perSecond": true,
+			"lasts": 15
 		}
 	},
 	"Renekton": {
@@ -430,6 +447,16 @@ var damageMod = {
 			"perSecond": true,
 			"lasts": "e3"
 		}
+	},
+	"Volibear": {
+		"W": {
+			"multiplyBy": 2
+		}
+	},
+	"Lucian": {
+		"R": {
+			"multiplyBy": 33
+		}
 	}
 };
 
@@ -473,6 +500,50 @@ var manualDmg = {
 	"Elise": {
 		"Q": "{{ e1 }} plus 8% (+{{ a1 }}%) of the target's current Health",
 		"Q2": "{{ e1 }} plus 8% (+{{ a1 }}%) of the target's missing Health"
+	},
+	"Volibear": {
+		"W": "{{ e3 }} (+{{ f1 }} [{{ e4 }}% of bonus Health])"
+	},
+	"Nunu": {
+		"R": "{{ e1 }} (+{{ a1 }}) magic damage"
+	},
+	"Shyvana": {
+		"Q": "(+{{ f1 }}) physical damage"
+	},
+	"Dr. Mundo": {
+		"Q": "{{ e2 }}% of the target's current Health"
+	},
+	"Sejuani": {
+		"Q": "{{ e1 }} (+{{ a1 }}) plus {{ e3 }}% of the target's maximum Health"
+	},
+	"Quinn": {
+		"R": "{{ e6 }} (+{{ a2 }}) physical damage"
+	},
+	"Hecarim": {
+		"E": "{{ e3 }} (+{{ f2 }}) physical damage"
+	},
+	"Lucian": {
+		"R": "{{ e2 }} (+{{ a1 }}) (+{{ a2 }}) physical damage."
+	},
+	"Nasus": {
+		"R": "{{ e3 }}% (+{{ a1 }})% of nearby enemies' maximum Health each second"
+	},
+	"Jinx": {
+		"R": "{{ e2 }} (+{{ a2 }}) Physical Damage plus {{ e3 }}% of the target's missing Health"
+	},
+	"Taric": {
+		"E": "{{ e3 }} (+{{ a2 }}) magic damage. "
+	},
+	"Vel'Koz": {
+		"R": "{{ e1 }} (+{{ a1 }}),"
+	},
+	"Ezreal": {
+		"W": "{{ e1 }} (+{{ a1 }}) magic damage."
+	},
+	"Ryze": {
+		"Q": "{{ e1 }} (+{{ a1 }}) plus (+{{ f1 }}) in magic damage.",
+		"W": "{{ e2 }} (+{{ a1 }}) plus (+{{ f1 }}) in magic damage.",
+		"E": "{{ e1 }} (+{{ a1 }}) plus (+{{ f1 }}) magic damage"
 	}
 };
 

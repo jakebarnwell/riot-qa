@@ -609,6 +609,9 @@ var getTokenValues = function(tokens, champ, spellNumber) {
 						var health = baseHealth; //Again, assume no items
 						var bonusHealth = Math.max(health - baseHealth, 0);
 						result = bonusHealth * coeff;
+					} else if(link === "mana") {
+						var mana = stats["mp"] + 18*stats["mpperlevel"];
+						result = mana * coeff;
 					} else {
 						;
 					}
