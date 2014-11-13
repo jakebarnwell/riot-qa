@@ -12,10 +12,8 @@ $(document).ready(function() {
 });
 
 var findMostEfficientSpell = function() {
-	listing = {};
 	results = [];
 
-	var listing = "<ol>";
 	for(var champ in allData) {
 
 		//Loop through all spells of all champs.
@@ -46,18 +44,25 @@ var findMostEfficientSpell = function() {
 				
 				
 
-				listing += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + damage + " ::: " + dps + " </li>";
+				
 
 			}
 
 		}
 
-	listing += "</li>";
+
 
 
 	}
 
 	sortByDPS(results);
+
+	var listing = "<ol>";
+	for(var r in results) {
+		var x = results[r];
+		listing += "<li><b>"+x["dps"]+"</b> damage per second by "+x["champion"]+"'s " + x["spell"]+"</li>";
+	}
+	listing += "</ol>";
 
 	$("#content").html(listing);
 }
@@ -67,32 +72,14 @@ var sortByDPS = function(arr) {
 		var a = x["dps"];
 		var b = y["dps"];
 		if(a < b) {
-			return -1;
-		} else if(a > b) {
 			return 1;
+		} else if(a > b) {
+			return -1;
 		} else {
 			return 0;
 		}
 	});
 }
-
-// var sortByDPS = function(arr) {
-// 	var sorted = [];
-
-// 	var highest = -1;
-
-// 	for(var a = 0; a < arr.length; a++) {
-// 		//Inside here I will find the a-th largest dps and push it to a fresh list
-
-// 		var highest = -1;
-// 		var highestArg = -1;
-
-// 		for(var i = a + 1; i < arr.length; i++) {
-
-// 		}
-
-// 	}
-// }
 
 var calculateDPS = function(damage, champ, s) {
 
@@ -111,6 +98,11 @@ var calculateDPS = function(damage, champ, s) {
 
 	CDR = Math.min(100, CDR);
 	var myCD = allCDs[allCDs.length - 1] * (1 - (CDR / 100.0));
+
+	//Arbitrary assigns a CD of 8 if there's a "0 second cooldown" -___-
+	if(myCD === 0) {
+		myCD = 8; 
+	}
 
 	var dps = damage / myCD;
 
