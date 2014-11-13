@@ -557,3 +557,7 @@ var falsePositives =
 /* Spells that the heuristic thinks are not damaging spells when they in fact are. */
 var trueNegatives =
 	["AzirE","MalzaharW","NunuR","AkaliE","LucianQ","EzrealW"];
+
+/* Keywords that refer to damaging abilities. Used in the heuristic to find spells
+that do damage. */
+var keywords = ["afflicts","cleaves","damaging","shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];

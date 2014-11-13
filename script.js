@@ -9,7 +9,7 @@ $(document).ready(function() {
 });
 
 var findMostEffectiveSpell = function() {
-	// var API_key = "82e1d9e7-6d06-4345-b3ac-bcad6b8e4bbf";
+
 	// var request_URL =
 	// 	"https://na.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=spells,stats&api_key="
 	// 	+ API_key;
@@ -51,7 +51,7 @@ var doAll = function(data) {
 
 			var tooltip = spell.sanitizedTooltip;
 
-			var keywords = ["afflicts","cleaves","damaging","shoots","slicing","take","takes","taking","deal","deals","dealt","dealing","does","doing","suffer"];		
+					
 
 			var spellLetter = getSpellLetter(s);
 
@@ -71,19 +71,12 @@ var doAll = function(data) {
 
 
 
-				results += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + parsedDamageText + "</li>";
 				results += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + damage + " ::: " + dps + " </li>";
 
 				
 
 
 
-				if(parsedDamageText.length === 0) {
-					numZero += 1;
-					var alternateD
-					// console.log("Champ: " + data[champ]["name"] + ", spell: " + s);
-					results += "<li><h1> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + parsedDamageText + "</h1></li>";
-				}
 
 				
 			}
