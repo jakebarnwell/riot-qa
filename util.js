@@ -106,3 +106,21 @@ var getSpellLetter = function(spellNumber) {
 	return spellName;
 }
 
+
+$("#submitform").submit(function(evt) {
+	evt.preventDefault();
+
+	var inputAP = $("#AP").val();
+	var inputAD = $("#AD").val();
+	var inputCDR = $("#CDR").val();
+
+	if(inputAP) AP = inputAP;
+	if(inputAD) AD = inputAD;
+	if(inputCDR) CDR = inputCDR;
+
+	var info = "Calculating most efficient spells with: " + AP + " Ability Power, " + AD + " Attack Damage, and " + CDR + "% Cooldown Reduction.";
+
+	$("#info").html(info);
+
+	findMostEfficientSpell();
+});

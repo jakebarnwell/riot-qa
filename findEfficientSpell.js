@@ -9,24 +9,6 @@ $(document).ready(function() {
   	allData = all_champs.data;
 });
 
-$("#submitform").submit(function(evt) {
-	evt.preventDefault();
-
-	var inputAP = $("#AP").val();
-	var inputAD = $("#AD").val();
-	var inputCDR = $("#CDR").val();
-
-	if(inputAP) AP = inputAP;
-	if(inputAD) AD = inputAD;
-	if(inputCDR) CDR = inputCDR;
-
-	var info = "Calculating most efficient spells with: " + AP + " Ability Power, " + AD + " Attack Damage, and " + CDR + "% Cooldown Reduction.";
-
-	$("#info").html(info);
-
-	findMostEfficientSpell();
-});
-
 var findMostEfficientSpell = function() {
 	var results = [];
 
@@ -82,6 +64,86 @@ var findMostEfficientSpell = function() {
 }
 
 
+/* The simplest of the parsing algorithms to decide if a spell is a damaging
+spell or not. */
+var hasDamageKeyword = function(keywords, tooltip) {
+	for(var i = 0; i < keywords.length; i++) {
+		if(tooltip.toLowerCase().indexOf(keywords[i] + " ") >= 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+//Returns true if the champion and spell is not a false positive in the system
+var notFalsePositive = function(champName, spellNumber) {
+	var spell = champName + getSpellLetter(spellNumber);
+
+	if(falsePositives.indexOf(spell) >= 0 || falsePositives.indexOf(champName) >= 0) {
+		return false;
+	}
+	return true;
+}
+
+//Returns true if the champion and spell is one that the system did not identify
+// as a damaging spell, but it is one.
+var trueNegative = function(champName, spellNumber) {
+	var spell = champName + getSpellLetter(spellNumber);
+
+	if(trueNegatives.indexOf(spell) >= 0) {
+		return true;
+	}
+	return false;
+}
+
+var getParsed = function(keywords, tooltip) {
+	var tooltip = tooltip.toLowerCase();
+
+	var results = [];
+
+	for(var k in keywords) {
+		var key = keywords[k];
+		var regex = new RegExp("("+key+" )([A-Za-z0-9:.;()\\[\\]\\+]+ ){0,5}([{(]+ )([(plus)eaf0-9().%{} \\+]*)([)}%]+ )(['%A-Za-z0-9:.;()\\[\\]\\+]+ ){0,12}(damage)", "g"); 
+		var matches = tooltip.match(regex);
+		if(matches && matches.length) {
+			results = results.concat(matches);
+		}
+	}
+
+	return results;
+}
+
+//Removes erroneous parsings from a spell that was already parsed
+var removeErroneousParsings = function(champName, spellLetter, matches) {
+	if(damageMod[champName] && damageMod[champName][spellLetter]) {
+
+		var mod = damageMod[champName][spellLetter];
+		if(mod["override"]) {
+			return [];
+		}
+		if(mod["deleteStatementContaining"]) {
+			//The string with the statement to-be-deleted will look something
+			// like "e2" or "e2 a1".
+
+			var deleteTokens = mod["deleteStatementContaining"];
+
+			//We look through all of the parsed damage matches to find the one
+			// with all the required tokens in it.
+			for(var m = 0; m < matches.length; m++) {
+				if(tokensMatchStatement(deleteTokens, matches[m])) {
+					matches.splice(m, 1);
+					m--;
+				}
+				//Deletes the match if that's what we want to do.
+				
+			}
+
+		}
+	}
+}
+
+//Parses the damage scaling tokens from a text that has them in it
+// e.g. "{{ a1 }} +({{ f2 }})% magic damage..." or whatever
 var parseDamage = function(champ, spellNumber, parsedTexts) {
 	var dmg = -1;
 	var separateDamages = [];
@@ -116,7 +178,7 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 		separateDamages.push(parsedDamage);
 	}
 
-	// This block applies the "either/or" commane, i.e. if there are two options for
+	// This block applies the "either/or" command, i.e. if there are two options for
 	// a spell, you pick one (and we go with the one that does the more damage):
 	// e.g. Fizz' playful/trickster, you can either land straight down or move
 	// laterally to do less damage.
@@ -131,12 +193,13 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 		dmg = separateDamages.reduce(function(x,y) {return x+y}, 0);
 	}
 
+	//Add on any additional damage at the end, since it won't affect the solution
 	dmg = modifyDamageAdd(dmg, champ, spellNumber);
-
-
 
 	return dmg;
 }
+
+/* ------------------------------------------------------- */
 
 //Returns true if we are going to manually parse this one or not
 var manualParse = function(champ, spellNumber) {
@@ -472,34 +535,7 @@ var getTokenValues = function(tokens, champ, spellNumber) {
 	return tokenVals;
 }
 
-//Removes erroneous parsings from a spell that was already parsed
-var removeErroneousParsings = function(champName, spellLetter, matches) {
-	if(damageMod[champName] && damageMod[champName][spellLetter]) {
 
-		var mod = damageMod[champName][spellLetter];
-		if(mod["override"]) {
-			return [];
-		}
-		if(mod["deleteStatementContaining"]) {
-			//The string with the statement to-be-deleted will look something
-			// like "e2" or "e2 a1".
-
-			var deleteTokens = mod["deleteStatementContaining"];
-
-			//We look through all of the parsed damage matches to find the one
-			// with all the required tokens in it.
-			for(var m = 0; m < matches.length; m++) {
-				if(tokensMatchStatement(deleteTokens, matches[m])) {
-					matches.splice(m, 1);
-					m--;
-				}
-				//Deletes the match if that's what we want to do.
-				
-			}
-
-		}
-	}
-}
 
 //Checks if a string of tokens (e.g. "a2 e3 f1") "match" a statement--that is,
 // if they all appear in the parsed damage text from the spell.
@@ -549,51 +585,3 @@ var removeBadPercents = function(champ, spellNumber, matches) {
 	return newMatches;
 }
 
-//Returns true if the champion and spell is not a false positive in the system
-var notFalsePositive = function(champName, spellNumber) {
-	var spell = champName + getSpellLetter(spellNumber);
-
-	if(falsePositives.indexOf(spell) >= 0 || falsePositives.indexOf(champName) >= 0) {
-		return false;
-	}
-	return true;
-}
-
-//Returns true if the champion and spell is one that the system did not identify
-// as a damaging spell, but it is one.
-var trueNegative = function(champName, spellNumber) {
-	var spell = champName + getSpellLetter(spellNumber);
-
-	if(trueNegatives.indexOf(spell) >= 0) {
-		return true;
-	}
-	return false;
-}
-
-/* The simplest of the parsing algorithms to decide if a spell is a damaging
-spell or not. */
-var hasDamageKeyword = function(keywords, tooltip) {
-	for(var i = 0; i < keywords.length; i++) {
-		if(tooltip.toLowerCase().indexOf(keywords[i] + " ") >= 0) {
-			return true;
-		}
-	}
-	return false;
-}
-
-var getParsed = function(keywords, tooltip) {
-	var tooltip = tooltip.toLowerCase();
-
-	var results = [];
-
-	for(var k in keywords) {
-		var key = keywords[k];
-		var regex = new RegExp("("+key+" )([A-Za-z0-9:.;()\\[\\]\\+]+ ){0,5}([{(]+ )([(plus)eaf0-9().%{} \\+]*)([)}%]+ )(['%A-Za-z0-9:.;()\\[\\]\\+]+ ){0,12}(damage)", "g"); 
-		var matches = tooltip.match(regex);
-		if(matches && matches.length) {
-			results = results.concat(matches);
-		}
-	}
-
-	return results;
-}
