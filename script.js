@@ -1,97 +1,98 @@
+
+
 var allData;
 var AP = 100;
 var AD = 200;
 var CDR = 0;
+var results = [];
 
 $(document).ready(function() {
-	// console.log("document ready");
-	findMostEffectiveSpell();
+  	allData = all_champs.data;
+	findMostEfficientSpell();
 });
 
-var findMostEffectiveSpell = function() {
+var findMostEfficientSpell = function() {
+	listing = {};
+	results = [];
 
-	// var request_URL =
-	// 	"https://na.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=spells,stats&api_key="
-	// 	+ API_key;
+	var listing = "<ol>";
+	for(var champ in allData) {
 
-	// $.get(request_URL, function(response) {
-	// 	allData = response.data;
-	// 	doAll(response.data);
-	// }).fail(function(jqxhr) {
-	//     var response = $.parseJSON(jqxhr.responseText);
-	//     alert("API query failed. Perhaps an incorrect API Key?");
- //  	});
-
-  	allData = all_champs.data;
-  	// console.log(allData);
-  	doAll(allData);
-
-};
-
-var doAll = function(data) {
-
-	results = {};
-
-	var numZero = 0;
-	var numValid = 0;
-
-	var results = "<ol>";
-	for(var champ in data) {
-		// console.log(champ);
-		var champSpells = data[champ]["spells"];
-		// console.log(champSpells);
-		// console.log(champSpells);
-
-		
-
+		//Loop through all spells of all champs.
+		var champSpells = allData[champ]["spells"];	
 		for(var s = 0; s < champSpells.length; s++) {
-			var spell = champSpells[s];
-			// console.log(spell);
-
-
-			var tooltip = spell.sanitizedTooltip;
-
-					
-
+			//Gets the (sanitized) tooltip of the current spell of the current champion
+			var tooltip = champSpells[s].sanitizedTooltip;
+			//Calculates the letter (e.g. Q or R) of the spell given the index (e.g. 0 or 3)
 			var spellLetter = getSpellLetter(s);
 
-			//if the spell mentions damage in its sanitized description, or it's in negatives list...
-			if((trueNegative(data[champ]["name"], s) || (hasDamageKeyword(keywords,tooltip) && notFalsePositive(data[champ]["name"], s)))) {
-				numValid += 1;
+			//The big test to see if a skill is a damaging skill or not. There are some false postiives
+			// and vice versa so those are accounted for by two functions I manually created.
+			var champName = allData[champ]["name"];
+			if(trueNegative(champName, s) ||
+				(hasDamageKeyword(keywords,tooltip) && notFalsePositive(champName, s))) {
 
-				results += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
+
+				listing += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
 				var parsedDamageText = getPortion(keywords,tooltip);
 				parsedDamageText = removeReducedDamageTokens(parsedDamageText);
-				removeErroneousParsings(data[champ]["name"], getSpellLetter(s), parsedDamageText);
+				removeErroneousParsings(champName, spellLetter, parsedDamageText);
 
 				var damage = parseDamage(champ, s, parsedDamageText);
 
 				var dps = calculateDPS(damage, champ, s);
 
-
-
-
-				results += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + damage + " ::: " + dps + " </li>";
-
+				results.push({"dps": dps, "damage": damage, "spell": spellLetter, "champion": champName});
+				
 				
 
+				listing += "<li> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + champ + " " + spellLetter + ": " + damage + " ::: " + dps + " </li>";
 
-
-
-				
 			}
 
-			
 		}
 
-	results += "</li>";
+	listing += "</li>";
 
 
 	}
-	console.log("numZero is " + numZero);
-	console.log("numValid is " + numValid);
-	$("#content").html(results);
+
+	sortByDPS(results);
+
+	$("#content").html(listing);
 }
+
+var sortByDPS = function(arr) {
+	return arr.sort(function(x, y) {
+		var a = x["dps"];
+		var b = y["dps"];
+		if(a < b) {
+			return -1;
+		} else if(a > b) {
+			return 1;
+		} else {
+			return 0;
+		}
+	});
+}
+
+// var sortByDPS = function(arr) {
+// 	var sorted = [];
+
+// 	var highest = -1;
+
+// 	for(var a = 0; a < arr.length; a++) {
+// 		//Inside here I will find the a-th largest dps and push it to a fresh list
+
+// 		var highest = -1;
+// 		var highestArg = -1;
+
+// 		for(var i = a + 1; i < arr.length; i++) {
+
+// 		}
+
+// 	}
+// }
 
 var calculateDPS = function(damage, champ, s) {
 
@@ -197,7 +198,6 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 			// the reason being that the parser, for these few spells that we
 			// override, doesn't work too well.
 
-			// parsedDamage = applyOverrides(champ, spellNumber, matches, text);
 
 
 			parsedDamage = modifyDamageMult(parsedDamage, champ, spellNumber, text);
@@ -205,9 +205,7 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 			separateDamages.push(parsedDamage);
 		}
 	} else { //For the manual case when there are no auto matches
-		// console.log("In 'else'... for " + champ + ", " + spellNumber);
 
-		console.log("The pair " + champ + ", " + spellNumber + " is chosen for manual parse");
 
 		var parsedDamage = calculateManualSpells(champ, spellNumber);
 		parsedDamage = modifyDamageMult(parsedDamage, champ, spellNumber, "");
@@ -230,7 +228,6 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 		dmg = separateDamages.reduce(function(x,y) {return x+y}, 0);
 	}
 
-	// console.log("Got here.");
 	dmg = modifyDamageAdd(dmg, champ, spellNumber);
 
 
@@ -241,7 +238,6 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 var manualParse = function(champ, spellNumber) {
 	try {
 		var x = manualDmg[allData[champ]["name"]][getSpellLetter(spellNumber)];
-		// console.log(x);
 		if(x) {
 			return true;
 		} else {
@@ -253,26 +249,15 @@ var manualParse = function(champ, spellNumber) {
 
 }
 
-var test = function() {
-	// console.log(manualDmg);
-
-}
 
 var calculateManualSpells = function(champ, spellNumber) {
-	// test();
-	// console.log(manualDmg);
 
 
-	// console.log("Manual calculate for " + champ + " , " + spellNumber);
 	try {
-		// console.log(allData[champ]["name"]);
-		// console.log(manualDmg);
 		var manualText = manualDmg[allData[champ]["name"]][getSpellLetter(spellNumber)].toLowerCase();
-		// console.log("Test2");
 		var matches = manualText.match(/(({{ ?)[eaf0-9]+( ?}}\)?%?))|([0-9]+%)/g);
 		var dmg = parseDamageFromRegexMatches(champ, spellNumber, matches, manualText);
 
-		// console.log("Successful manual calculate, with " + champ + ", " + spellNumber + ", damage = " + dmg);
 		return dmg;
 	} catch(e) {
 		return 0;
@@ -282,28 +267,22 @@ var calculateManualSpells = function(champ, spellNumber) {
 }
 
 var overrideMatches = function(champ, spellNumber, matches) {
-	// console.log("here");
 	var overriddenMatches = [];
 
 	try {
 		var mod = damageMod[allData[champ]["name"]][getSpellLetter(spellNumber)];
-		// console.log("here2");
 
 		if(mod["override"]) {
-			// console.log("override champ " + champ + ", spell = " + spellNumber + ", new matches = " + overriddenMatches);
 
 			var override = mod["override"];
 
 			if(override["base"]) {
-			// console.log("override TWO champ " + champ + ", spell = " + spellNumber + ", new matches = " + overridenMatches);
 
 				overriddenMatches.push("{{ " + override["base"] + " }}");	
 			}
-				// console.log("HERE is ");
 
 			if(override["scale"]) {
 				var scales = override["scale"].split(" ");
-				// console.log("scales is " + scales);
 				for(var s in scales) {
 					overriddenMatches.push("{{ " + scales[s] + " }}");
 				}
@@ -312,8 +291,6 @@ var overrideMatches = function(champ, spellNumber, matches) {
 
 
 			
-			// console.log("MOO");
-			// console.log("override FIVVEE champ " + champ + ", spell = " + spellNumber + ", new matches = " + overriddenMatches);
 			return overriddenMatches;
 		}
 
@@ -325,12 +302,9 @@ var overrideMatches = function(champ, spellNumber, matches) {
 
 }
 
-var applyOverrides = function(champ, spellNumber, matches, text) {
-	return -5;
-}
+
 
 var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, text) {
-	// console.log("Parsing.... " + champ + ", " + spellNumber + ", regex matches = " + regexMatches);
 
 	// return 0;
 	var r = regexMatches;
@@ -342,7 +316,6 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 	var baseDmg = 0;
 
 	for(var i in r) {
-		// console.log(champ + ", " + spellNumber + ", " + r[i]);
 		if(r[i].indexOf("%") < 0) { //So it's just a standard base/scale dmg
 			var token = r[i].substring(3, 5);
 			if(token[0] === "e") { //This is a base damage
@@ -350,14 +323,11 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 
 				dmg += baseDmg;
 			} else if(token[0] === "a" || token[0] === "f") { //Scaling damage
-				// console.log("The token is " + token);
 				addtlDmg = getTokenValues([token], champ, spellNumber)[0][0];
 
 				dmg += addtlDmg;
 			}
-			console.log("dmg now equals " + dmg);
 		} else { //Else it's a percentage, probably of a health
-			// console.log("Parsing percentage.... " + champ + ", " + spellNumber );
 			var coeff = 0;
 
 			var percent = 0;
@@ -416,7 +386,6 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 
 
 			var coeff = percent * 0.01;
-			console.log("Calculated coeff to be: " + champ + ", " + spellNumber + ", " + coeff + ", text = " + text + ", dmg = " + dmg);
 
 
 
@@ -425,7 +394,6 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 			var substr = text.substring(loc, text.length);
 
 			if(substr.indexOf("health") >= 0) { //So we're looking at some health
-				// console.log("Inside health!");
 				if(substr.indexOf("bonus health") >= 0) {
 					var baseHealth = stats["hp"] + 18*stats["hpperlevel"];
 					var health = baseHealth; //Again, assume no items
@@ -448,12 +416,10 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 				var bonusAD = Math.max(AD - baseAD, 0);
 				dmg += (bonusAD * coeff);
 			} else if(substr.indexOf("attack damage") >= 0) {
-				// console.log("Inside attack damage");
 				dmg += (AD * coeff);
 			} else { //Assume it's just a damage multiplier then
 				dmg *= (1 + coeff);
 			}
-			console.log("dmg (after %) now equals" + dmg);
 		}
 	}
 
@@ -465,21 +431,17 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 }
 
 var modifyDamageMult = function(dmg, champ, spellNumber, text) {
-	// console.log("Here");
 	var modifiedDmg = dmg;
 	var champName = allData[champ]["name"];
 
 	try {
 		var mod = damageMod[champName][getSpellLetter(spellNumber)];
-		// console.log("modify Damage working. At " + dmg + ", " + champ + ", " + spellNumber + ", " + text);
 			
 		var tokens = mod["forStatementContaining"];
 
 		if(!tokens || (tokens && tokensMatchStatement(tokens, text))) {
-			// console.log("Inside of this if statement");
 			if(mod["multiplyBy"]) {
 				if(typeof mod["multiplyBy"] === "string") {
-					// console.log("multiplyBy is a string for " + champ + ", " + spellNumber);
 					var e = getTokenValues([mod["multiplyBy"]], champ, spellNumber)[0];
 					modifiedDmg *= e;
 				} else {
@@ -487,21 +449,16 @@ var modifyDamageMult = function(dmg, champ, spellNumber, text) {
 				}
 			}
 			if(mod["perSecond"]) {
-				// console.log("here2");
 				var duration = mod["lasts"];
-				// console.log("duration = " + duration);
 				if((typeof duration) === "string") {
-					// console.log("Got here 254");
 					var durations = duration.split(" ");
 					durationVals = getTokenValues(durations, champ, spellNumber);
-					// console.log(durationVals);
 					modifiedDmg *= durationVals.reduce(function(x,y) {return x+y}, 0);
 				} else {
 					modifiedDmg *= duration;
 				}
 			}
 		}
-		// console.log("mod dmg is " + modifiedDmg);
 	
 	} catch(e) {
 		return dmg;
@@ -511,24 +468,18 @@ var modifyDamageMult = function(dmg, champ, spellNumber, text) {
 }
 
 var modifyDamageAdd = function(dmg, champ, spellNumber) {
-// console.log("Here");
 	var modifiedDmg = dmg;
 	var champName = allData[champ]["name"];
 
 	try {
 
 		var mod = damageMod[champName][getSpellLetter(spellNumber)];
-		// console.log("modify damage add. At " + dmg + ", " + champ + ", " + spellNumber);
 
 		if(mod["add"]) {
-			// console.log("HERE TASDF");
 			var add = mod["add"].split(" ");
-			// console.log("HERE 2. add = " + add);
 			var tokenVals = getTokenValues(add, champ, spellNumber);
-			// console.log("Inside this part!!!!!!");
 
 			for(var t in tokenVals) {
-				// console.log("tokenVals = " + tokenVals + ", and token = " + tokenVals[t]);
 				if((typeof tokenVals[t]) === "number") {
 					modifiedDmg += tokenVals[t];
 				} else { //Must be an array then, i.e. fx or ax type
@@ -566,14 +517,8 @@ an array of length 2 if the input was "fx" or "ax"; the ordering is
 [scaling, coeff] e.g. ["armor", 0.5].
 */
 var getTokenValues = function(tokens, champ, spellNumber) {
-	// console.log("33 inside tokenvalues with tokens = " + tokens) + ", Champ = " + champ + ", spell = " + spellNumber;
-	// console.log(allData);
-	// console.log("allData[champ] is:");
-	// console.log(allData[champ]);
 	var stats = allData[champ]["stats"];
-	// console.log("stats is " + stats);
 	var tokenVals = [];
-	// console.log("asdf");
 
 	for(var t in tokens) {
 		var token = tokens[t];
@@ -581,23 +526,18 @@ var getTokenValues = function(tokens, champ, spellNumber) {
 
 		if(token[0] === "e") {
 			var index = parseInt(token[1]);
-			// console.log("Here???");
 			var eff = allData[champ]["spells"][spellNumber]["effect"][index];
-			// console.log("Eff is " + eff);
 			if(!eff) {
 				tokenVals.push(0);
 			} else {
-				// console.log("eff is " + eff);
 				tokenVals.push(eff[eff.length - 1]);
 			}
 		} else if(token[0] === "a" || token[0] === "f") {
-			// console.log("Inside here! with champ = " + champ + ", spell = " + spellNumber);
 			var vars = allData[champ]["spells"][spellNumber]["vars"];
 			for(v in vars) {
 				var scale = vars[v];
 
 				if(scale["key"] === token) {
-					// console.log("arrived here");
 					var link = scale["link"];
 					var coeffs = scale["coeff"];
 					var coeff = coeffs[coeffs.length - 1];
@@ -638,7 +578,6 @@ var getTokenValues = function(tokens, champ, spellNumber) {
 			console.log("Not a valid token!");
 		}
 	}
-	// console.log("getTokenValues return value: " + tokenVals);
 	return tokenVals;
 }
 
@@ -652,7 +591,6 @@ var removeErroneousParsings = function(champName, spellLetter, matches) {
 		if(mod["deleteStatementContaining"]) {
 			//The string with the statement to-be-deleted will look something
 			// like "e2" or "e2 a1". This splits it into an array.
-			// console.log("Here at delete!");
 
 			var deleteTokens = mod["deleteStatementContaining"];
 
