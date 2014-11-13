@@ -1,17 +1,51 @@
 <html>
 <head>
 	<title>
-		Title!
+		Jake Barnwell's Spell Efficiency Calculator
 	</title>
+<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-	Body stuff.
+	<h5>Jake Barnwell, Coding Exercise for QA Internship at Riot Games, 11/12/2014</h5>
+	</p>
+		Because this program has to use heuristics to infer which spell so damage and how much damage, this information
+		is not guaranteed to be accurate; but it should be close. Note that I did use the API to get all of my data, however,
+		I do not actively query it during operation of the program: I store a local copy of the data so that it's more
+		reliable to work with.
+	</p>
+	<p>
+		For the purposes of simpler damage calculation, I make
+		some assumptions. The first is that all champions have zero bonus health, armor, etc. (i.e. it's as if they
+		don't have any items). The second is that I assume the average enemy champion to have 1950 (the approximate average
+		of level 18 healths across the board) health when dealing with skills that scale off of the enemy's health. Next,
+		I don't count aoe damage multiple times: for example, I don't multiply Fiddle's ult damage by 5 ("He could potentially
+		be damaging the whole entire team!") nor do I do it for Karthus ult, etc. Whenever reasonable, I give the benefit of
+		the doubt to the spell doing as much damage as possible. For example, if a spell scales on the enemy's missing health,
+		I assume the enemy has 100% (99%?) missing health so that the spell does maximum damage.
+	</p>
+	<p>
+		Below are two fields where you can enter your choices of AP, AD, and CDR. You are allowed to enter a CDR of higher
+		than 40%.
+	</p>
+	<div id="submit-div">
+		<form id="submitform">
+		<label for="AP">AP:</label>
+		<input id="AP" type="number" value="AP" min="0"></br>
+		<label for="AD">AD:</label>
+		<input id="AD" type="number" value="AD" min="0"></br>
+		<label for="CDR">CDR (%):</label>
+		<input id="CDR" type="number" value="CDR" min="0" max="100"></br>
+		<input type="submit" value="Go">
+	</form>
+
+	<div id="info"></div>
 	<div id="content"></div>
 </body>
 
 <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="data.js"></script>
 <script src="all_champs.js"></script>
+<script src="util.js"></script>
 <script src="script.js"></script>
 
 </html>

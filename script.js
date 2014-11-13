@@ -1,18 +1,34 @@
 
-
 var allData;
 var AP = 100;
-var AD = 200;
-var CDR = 0;
-var results = [];
+var AD = 100;
+var CDR = 10;
+
 
 $(document).ready(function() {
   	allData = all_champs.data;
+});
+
+$("#submitform").submit(function(evt) {
+	evt.preventDefault();
+
+	var inputAP = $("#AP").val();
+	var inputAD = $("#AD").val();
+	var inputCDR = $("#CDR").val();
+
+	if(inputAP) AP = inputAP;
+	if(inputAD) AD = inputAD;
+	if(inputCDR) CDR = inputCDR;
+
+	var info = "Calculating most efficient spells with: " + AP + " Ability Power, " + AD + " Attack Damage, and " + CDR + "% Cooldown Reduction.";
+
+	$("#info").html(info);
+
 	findMostEfficientSpell();
 });
 
 var findMostEfficientSpell = function() {
-	results = [];
+	var results = [];
 
 	for(var champ in allData) {
 
@@ -30,146 +46,41 @@ var findMostEfficientSpell = function() {
 			if(trueNegative(champName, s) ||
 				(hasDamageKeyword(keywords,tooltip) && notFalsePositive(champName, s))) {
 
-
-				listing += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
-				var parsedDamageText = getPortion(keywords,tooltip);
+				//Parse text for the phrase that contains the damage information
+				var parsedDamageText = getParsed(keywords,tooltip);
+				//Removes erroneous phrases having to do with "taking reduced damage"
 				parsedDamageText = removeReducedDamageTokens(parsedDamageText);
+				//Removes entities that were erroneously parsed
 				removeErroneousParsings(champName, spellLetter, parsedDamageText);
 
+				//Calculates the damage from the parsed sentences
 				var damage = parseDamage(champ, s, parsedDamageText);
-
+				//Uses damage and cooldowns to calculate DPS
 				var dps = calculateDPS(damage, champ, s);
 
+				//Stores the result to the array of objects
 				results.push({"dps": dps, "damage": damage, "spell": spellLetter, "champion": champName});
-				
-				
-
-				
-
 			}
-
 		}
-
-
-
-
 	}
 
 	sortByDPS(results);
 
+	//Displays the results on the website:
+
 	var listing = "<ol>";
 	for(var r in results) {
 		var x = results[r];
-		listing += "<li><b>"+x["dps"]+"</b> damage per second by "+x["champion"]+"'s " + x["spell"]+"</li>";
+		listing += "<li><b>"+x["dps"].toFixed(3)+"</b> damage per second by "+x["champion"]+"'s "+x["spell"]+" (which does "+x["damage"]+" damage)</li>";
 	}
 	listing += "</ol>";
 
 	$("#content").html(listing);
+
+	//Returns the best result to whomever called the function
+	return results[0];
 }
 
-var sortByDPS = function(arr) {
-	return arr.sort(function(x, y) {
-		var a = x["dps"];
-		var b = y["dps"];
-		if(a < b) {
-			return 1;
-		} else if(a > b) {
-			return -1;
-		} else {
-			return 0;
-		}
-	});
-}
-
-var calculateDPS = function(damage, champ, s) {
-
-	var dps = 0;
-
-	try {
-		if(damageMod[allData[champ]["name"]][getSpellLetter(s)]["toggle"]) {
-			dps = damage;
-			return dps;
-		}
-	} catch(e) {
-		;
-	}
-
-	var allCDs = allData[champ]["spells"][s]["cooldown"];
-
-	CDR = Math.min(100, CDR);
-	var myCD = allCDs[allCDs.length - 1] * (1 - (CDR / 100.0));
-
-	//Arbitrary assigns a CD of 8 if there's a "0 second cooldown" -___-
-	if(myCD === 0) {
-		myCD = 8; 
-	}
-
-	var dps = damage / myCD;
-
-	return dps;
-}
-
-var getSpellLetter = function(spellNumber) {
-
-	var spellName = "";
-	switch(spellNumber) {
-		case 0:
-			spellName = "Q";
-			break;
-		case 1:
-			spellName = "W";
-			break;
-		case 2:
-			spellName = "E";
-			break;
-		case 3:
-			spellName = "R";
-			break;
-		case 4:
-			spellName = "Q2";
-			break;
-		case 5:
-			spellName = "W2";
-			break;
-		case 6:
-			spellName = "E2";
-			break;
-		case 7:
-			spellName = "R2";
-			break;
-		default:
-			break;
-	}
-
-	return spellName;
-}
-
-var hasDamageKeyword = function(keywords, tooltip) {
-
-	for(var i = 0; i < keywords.length; i++) {
-		if(tooltip.toLowerCase().indexOf(keywords[i] + " ") >= 0) {
-			return true;
-		}
-	}
-	return false;
-}
-
-var getPortion = function(keywords, tooltip) {
-	var tooltip = tooltip.toLowerCase();
-
-	var results = [];
-
-	for(var k in keywords) {
-		var key = keywords[k];
-		var regex = new RegExp("("+key+" )([A-Za-z0-9:.;()\\[\\]\\+]+ ){0,5}([{(]+ )([(plus)eaf0-9().%{} \\+]*)([)}%]+ )(['%A-Za-z0-9:.;()\\[\\]\\+]+ ){0,12}(damage)", "g"); 
-		var matches = tooltip.match(regex);
-		if(matches && matches.length) {
-			results = results.concat(matches);
-		}
-	}
-
-	return results;
-}
 
 var parseDamage = function(champ, spellNumber, parsedTexts) {
 	var dmg = -1;
@@ -227,6 +138,7 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 	return dmg;
 }
 
+//Returns true if we are going to manually parse this one or not
 var manualParse = function(champ, spellNumber) {
 	try {
 		var x = manualDmg[allData[champ]["name"]][getSpellLetter(spellNumber)];
@@ -238,10 +150,9 @@ var manualParse = function(champ, spellNumber) {
 	} catch(e) {
 		return false;
 	}
-
 }
 
-
+//Does actual manual calculations
 var calculateManualSpells = function(champ, spellNumber) {
 
 
@@ -258,44 +169,33 @@ var calculateManualSpells = function(champ, spellNumber) {
 	return 0;
 }
 
+//Overrides certain spells that were already considered
 var overrideMatches = function(champ, spellNumber, matches) {
 	var overriddenMatches = [];
 
 	try {
 		var mod = damageMod[allData[champ]["name"]][getSpellLetter(spellNumber)];
-
 		if(mod["override"]) {
-
 			var override = mod["override"];
-
 			if(override["base"]) {
 
 				overriddenMatches.push("{{ " + override["base"] + " }}");	
 			}
-
 			if(override["scale"]) {
 				var scales = override["scale"].split(" ");
 				for(var s in scales) {
 					overriddenMatches.push("{{ " + scales[s] + " }}");
 				}
-
 			}
-
-
-			
 			return overriddenMatches;
 		}
-
 	} catch(e) {
 		// console.log(e);
 	}
-
 	return matches;
-
 }
 
-
-
+//Given the returns from the .match regex, parse the damage
 var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, text) {
 
 	// return 0;
@@ -422,13 +322,13 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 	}
 }
 
+//Modifies damage from a spell multiplicatively
 var modifyDamageMult = function(dmg, champ, spellNumber, text) {
 	var modifiedDmg = dmg;
 	var champName = allData[champ]["name"];
 
 	try {
 		var mod = damageMod[champName][getSpellLetter(spellNumber)];
-			
 		var tokens = mod["forStatementContaining"];
 
 		if(!tokens || (tokens && tokensMatchStatement(tokens, text))) {
@@ -459,12 +359,12 @@ var modifyDamageMult = function(dmg, champ, spellNumber, text) {
 	return modifiedDmg;
 }
 
+//Modifies the damage from a spell additively
 var modifyDamageAdd = function(dmg, champ, spellNumber) {
 	var modifiedDmg = dmg;
 	var champName = allData[champ]["name"];
 
 	try {
-
 		var mod = damageMod[champName][getSpellLetter(spellNumber)];
 
 		if(mod["add"]) {
@@ -498,7 +398,6 @@ var modifyDamageAdd = function(dmg, champ, spellNumber) {
 	} catch(e) {
 		// console.log(e);
 	}
-
 	return modifiedDmg;
 }
 
@@ -573,6 +472,7 @@ var getTokenValues = function(tokens, champ, spellNumber) {
 	return tokenVals;
 }
 
+//Removes erroneous parsings from a spell that was already parsed
 var removeErroneousParsings = function(champName, spellLetter, matches) {
 	if(damageMod[champName] && damageMod[champName][spellLetter]) {
 
@@ -582,7 +482,7 @@ var removeErroneousParsings = function(champName, spellLetter, matches) {
 		}
 		if(mod["deleteStatementContaining"]) {
 			//The string with the statement to-be-deleted will look something
-			// like "e2" or "e2 a1". This splits it into an array.
+			// like "e2" or "e2 a1".
 
 			var deleteTokens = mod["deleteStatementContaining"];
 
@@ -601,6 +501,8 @@ var removeErroneousParsings = function(champName, spellLetter, matches) {
 	}
 }
 
+//Checks if a string of tokens (e.g. "a2 e3 f1") "match" a statement--that is,
+// if they all appear in the parsed damage text from the spell.
 var tokensMatchStatement = function(tokens, statement) {
 	var tokens_list = tokens.split(" ");
 
@@ -613,6 +515,7 @@ var tokensMatchStatement = function(tokens, statement) {
 	return true;
 }
 
+//Removes tokens that involve "reducing damage," since these are typically false positive
 var removeReducedDamageTokens = function(matches) {
 	for(var i in matches) {
 		if(matches[i].indexOf("reduced") >= 0 || matches[i].indexOf("less") >= 0) {
@@ -622,6 +525,8 @@ var removeReducedDamageTokens = function(matches) {
 	return matches;
 }
 
+//Removes inappropriate tokens that have % signs in them -- there are only three to
+// consider, actually
 var removeBadPercents = function(champ, spellNumber, matches) {
 	var newMatches = [];
 
@@ -644,6 +549,7 @@ var removeBadPercents = function(champ, spellNumber, matches) {
 	return newMatches;
 }
 
+//Returns true if the champion and spell is not a false positive in the system
 var notFalsePositive = function(champName, spellNumber) {
 	var spell = champName + getSpellLetter(spellNumber);
 
@@ -653,6 +559,8 @@ var notFalsePositive = function(champName, spellNumber) {
 	return true;
 }
 
+//Returns true if the champion and spell is one that the system did not identify
+// as a damaging spell, but it is one.
 var trueNegative = function(champName, spellNumber) {
 	var spell = champName + getSpellLetter(spellNumber);
 
@@ -660,4 +568,32 @@ var trueNegative = function(champName, spellNumber) {
 		return true;
 	}
 	return false;
+}
+
+/* The simplest of the parsing algorithms to decide if a spell is a damaging
+spell or not. */
+var hasDamageKeyword = function(keywords, tooltip) {
+	for(var i = 0; i < keywords.length; i++) {
+		if(tooltip.toLowerCase().indexOf(keywords[i] + " ") >= 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+var getParsed = function(keywords, tooltip) {
+	var tooltip = tooltip.toLowerCase();
+
+	var results = [];
+
+	for(var k in keywords) {
+		var key = keywords[k];
+		var regex = new RegExp("("+key+" )([A-Za-z0-9:.;()\\[\\]\\+]+ ){0,5}([{(]+ )([(plus)eaf0-9().%{} \\+]*)([)}%]+ )(['%A-Za-z0-9:.;()\\[\\]\\+]+ ){0,12}(damage)", "g"); 
+		var matches = tooltip.match(regex);
+		if(matches && matches.length) {
+			results = results.concat(matches);
+		}
+	}
+
+	return results;
 }
