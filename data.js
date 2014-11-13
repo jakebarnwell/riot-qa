@@ -402,12 +402,77 @@ var damageMod = {
 		"Q": {
 			"multiplyBy": 1.5
 		}
+	},
+	"Garen": {
+		"E": {
+			"perSecond": true,
+			"lasts": 3
+		}
+	},
+	"Morgana": {
+		"W": {
+			"perSecond": true,
+			"lasts": 5
+		}
+	},
+	"Syndra": {
+		"R": {
+			"multiplyBy": 7
+		}
+	},
+	"Pantheon": {
+		"E": {
+			"multiplyBy": 6
+		}
+	},
+	"Malzahar": {
+		"W": {
+			"perSecond": true,
+			"lasts": "e3"
+		}
 	}
 };
 
 var manualDmg = {
 	"Gragas": {
 		"W": "{{ e3 }} (+{{ a1 }}) plus {{ e2 }}% of the target's maximum Health"
+	},
+	"Sion": {
+		"Q": "{{ e4 }} (+{{ f2 }}) physical damage"
+	},
+	"Garen": {
+		"E": "{{ e1 }} plus {{ e3 }}% of his attack damage"
+	},
+	"Morgana": {
+		"W": "{{ e6 }} (+{{ a2 }}) magic damage"
+	},
+	"Mordekaiser": {
+		"R": "{{ e1 }}% (+{{ a1 }})% of target champion's maximum Health"
+	},
+	"Varus": {
+		"Q": "{{ e2 }} (+{{ f2 }}) physical damage"
+	},
+	"Jayce": {
+		"E": "Deals {{ e4 }}% of the enemy's maximum health (+{{ a1 }}) as magic damage"
+	},
+	"Syndra": {
+		"R": "Damage per sphere: {{ e1 }} (+{{ a1 }})."
+	},
+	"Pantheon": {
+		"E": "{{ e1 }} (+{{ f1 }}) physical damage per strike."
+	},
+	"Riven": {
+		"R": "{{ e2 }} (+{{ f2 }}) physical damage"
+	},
+	"Malzahar": {
+		"W": "{{ e1 }}% (+{{ a1 }}%) of their max Health"
+	},
+	"Vi": {
+		"Q": "{{ e2 }} (+{{ f1 }}) physical damage"
+	},
+	"Elise": {
+		"Q": "{{ e1 }} plus 8% (+{{ a1 }}%) of the target's current Health",
+		"Q2": "{{ e1 }} plus 8% (+{{ a1 }}%) of the target's missing Health"
 	}
 };
 

@@ -1,6 +1,6 @@
 var allData;
 var AP = 100;
-var AD = 100;
+var AD = 200;
 var CDR = 0;
 
 $(document).ready(function() {
@@ -59,7 +59,7 @@ var doAll = function(data) {
 			if((trueNegative(data[champ]["name"], s) || (hasDamageKeyword(keywords,tooltip) && notFalsePositive(data[champ]["name"], s)))) {
 				numValid += 1;
 
-				// results += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
+				results += "<li>" + champ + " " + spellLetter + ": " + tooltip + "</li>";
 				var parsedDamageText = getPortion(keywords,tooltip);
 				parsedDamageText = removeReducedDamageTokens(parsedDamageText);
 				removeErroneousParsings(data[champ]["name"], getSpellLetter(s), parsedDamageText);
@@ -212,9 +212,11 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 			separateDamages.push(parsedDamage);
 		}
 	} else { //For the manual case when there are no auto matches
-		test(); //works fine... i'm having problems scoping manualDmg? it's weird
+		console.log("In 'else'... for " + champ + ", " + spellNumber);
 
 		var parsedDamage = calculateManualSpells(champ, spellNumber);
+		parsedDamage = modifyDamageMult(parsedDamage, champ, spellNumber, "");
+
 		separateDamages.push(parsedDamage);
 	}
 
@@ -242,28 +244,31 @@ var parseDamage = function(champ, spellNumber, parsedTexts) {
 }
 
 var test = function() {
-	console.log(manualDmg);
+	// console.log(manualDmg);
 
 }
 
 var calculateManualSpells = function(champ, spellNumber) {
+	// test();
+	// console.log(manualDmg);
 
 
-	console.log("Manual calculate for " + champ + " , " + spellNumber);
+	// console.log("Manual calculate for " + champ + " , " + spellNumber);
 	try {
-		console.log(allData[champ]["name"]);
-		console.log(manualDmg);
-		var manualText = manualDmg[allData[champ]["name"]][getSpellLetter(spellNumber)];
-		console.log("Test2");
+		// console.log(allData[champ]["name"]);
+		// console.log(manualDmg);
+		var manualText = manualDmg[allData[champ]["name"]][getSpellLetter(spellNumber)].toLowerCase();
+		// console.log("Test2");
 		var matches = manualText.match(/(({{ ?)[eaf0-9]+( ?}}\)?%?))|([0-9]+%)/g);
-		var manualDmg = parseDamageFromRegexMatches(champ, spellNumber, matches, manualText);
-		console.log("Successful manual calculate, with damage = " + manualDmg);
-		return manualDmg;
+		var dmg = parseDamageFromRegexMatches(champ, spellNumber, matches, manualText);
+
+		// console.log("Successful manual calculate, with " + champ + ", " + spellNumber + ", damage = " + dmg);
+		return dmg;
 	} catch(e) {
 		return 0;
 	}
 
-	return;
+	return 0;
 }
 
 var overrideMatches = function(champ, spellNumber, matches) {
@@ -315,6 +320,8 @@ var applyOverrides = function(champ, spellNumber, matches, text) {
 }
 
 var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, text) {
+	console.log("Parsing.... " + champ + ", " + spellNumber + ", regex matches = " + regexMatches);
+
 	// return 0;
 	var r = regexMatches;
 
@@ -325,6 +332,7 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 	var baseDmg = 0;
 
 	for(var i in r) {
+		console.log(champ + ", " + spellNumber + ", " + r[i]);
 		if(r[i].indexOf("%") < 0) { //So it's just a standard base/scale dmg
 			var token = r[i].substring(3, 5);
 			if(token[0] === "e") { //This is a base damage
@@ -337,7 +345,9 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 
 				dmg += addtlDmg;
 			}
+			console.log("dmg now equals " + dmg);
 		} else { //Else it's a percentage, probably of a health
+			console.log("Parsing percentage.... " + champ + ", " + spellNumber );
 			var coeff = 0;
 
 			var percent = 0;
@@ -394,12 +404,18 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 			}
 
 
-			var coeff = percent * 0.01;
 
-			var loc = text.indexOf(r[i]);
+			var coeff = percent * 0.01;
+			console.log("Calculated coeff to be: " + champ + ", " + spellNumber + ", " + coeff + ", text = " + text + ", dmg = " + dmg);
+
+
+
 			//We will now check the substring from the token onward to see what type of % it wants
+			var loc = text.indexOf(r[i]);
 			var substr = text.substring(loc, text.length);
+
 			if(substr.indexOf("health") >= 0) { //So we're looking at some health
+				console.log("Inside health!");
 				if(substr.indexOf("bonus health") >= 0) {
 					var baseHealth = stats["hp"] + 18*stats["hpperlevel"];
 					var health = baseHealth; //Again, assume no items
@@ -421,9 +437,13 @@ var parseDamageFromRegexMatches = function(champ, spellNumber, regexMatches, tex
 				var baseAD = stats["attackdamage"] + 18*stats["attackdamageperlevel"];
 				var bonusAD = Math.max(AD - baseAD, 0);
 				dmg += (bonusAD * coeff);
+			} else if(substr.indexOf("attack damage") >= 0) {
+				// console.log("Inside attack damage");
+				dmg += (AD * coeff);
 			} else { //Assume it's just a damage multiplier then
-				dmg *= (1 + percent);
+				dmg *= (1 + coeff);
 			}
+			console.log("dmg (after %) now equals" + dmg);
 		}
 	}
 
@@ -444,8 +464,13 @@ var modifyDamageMult = function(dmg, champ, spellNumber, text) {
 		if(!tokens || (tokens && tokensMatchStatement(tokens, text))) {
 			// console.log("Inside of this if statement");
 			if(mod["multiplyBy"]) {
-				// console.log("here1");
-				modifiedDmg *= mod["multiplyBy"];
+				if(typeof mod["multiplyBy"] === "string") {
+					console.log("multiplyBy is a string for " + champ + ", " + spellNumber);
+					var e = getTokenValues([mod["multiplyBy"]], champ, spellNumber)[0];
+					modifiedDmg *= e;
+				} else {
+					modifiedDmg *= mod["multiplyBy"];
+				}
 			}
 			if(mod["perSecond"]) {
 				// console.log("here2");
